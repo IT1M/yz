@@ -141,10 +141,10 @@
 
     <!-- Support Chat -->
     <div class="support-chat">
-        <button class="chat-toggle" id="chatToggleButton" aria-label="افتح نافذة الدردشة المساعدة" aria-expanded="false" aria-controls="chatWindowContainer">
+        <button class="chat-toggle-button" id="chatToggleButton" aria-label="افتح نافذة الدردشة المساعدة" aria-expanded="true" aria-controls="chatWindowContainer">
             <i class="fas fa-headset"></i>
         </button>
-        <div class="chat-window" id="chatWindowContainer" role="log" aria-live="polite" style="display:none;">
+        <div class="chat-window show" id="chatWindowContainer" role="log" aria-live="polite">
             <div class="chat-header">
                 <h4>مساعد ميس الذكي</h4>
                 <button id="closeChatButton" class="icon-button" aria-label="إغلاق نافذة الدردشة">
@@ -328,7 +328,7 @@
     <!-- Alert Notification Placeholder (managed by JS) -->
     <div id="globalAlertContainer"></div>
 
-    <script src="script.js" defer></script>
-    <script src="js/env.local.js"></script>
+<script src="script.js" defer></script>
+<script src="js/env.local.js"></script>
 </body>
 </html>

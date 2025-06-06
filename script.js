@@ -24,9 +24,7 @@ const appState = {
     }
 };
 
-// --- Gemini API Configuration ---
-// IMPORTANT: For local development with a real key, ensure `js/env.local.js` exists and is in .gitignore
-// Example js/env.local.js: window.DEV_GEMINI_API_KEY = "AIzaSy_YOUR_REAL_KEY";
+
 const GEMINI_API_KEY_FOR_CHATBOT = typeof window.DEV_GEMINI_API_KEY !== 'undefined'
                                   ? window.DEV_GEMINI_API_KEY
                                   : "YOUR_GEMINI_API_KEY_PLACEHOLDER"; // Fallback placeholder
@@ -109,6 +107,12 @@ document.addEventListener('DOMContentLoaded', function() {
     updateUserMenuDisplay();
     addEventListeners();
     checkUserSession();
+    // فتح نافذة الدعم الفني دائمًا عند التحميل
+    if (DOMElements.chatWindowContainer) {
+        DOMElements.chatWindowContainer.classList.add('show');
+        appState.chat.isWindowOpen = true;
+        DOMElements.chatToggleButton?.setAttribute('aria-expanded', 'true');
+    }
 });
 
 function addEventListeners() {
@@ -123,7 +127,12 @@ function addEventListeners() {
     document.getElementById('switchToRegisterLink')?.addEventListener('click', (e) => { e.preventDefault(); showRegisterModal(); });
     document.getElementById('switchToLoginLink')?.addEventListener('click', (e) => { e.preventDefault(); showLoginModal(); });
 
-    DOMElements.chatToggleButton?.addEventListener('click', () => toggleChatWindow());
+    DOMElements.chatToggleButton?.addEventListener('click', () => {
+        // لا تغلق نافذة الدعم الفني عند الضغط على الزر
+        if (!appState.chat.isWindowOpen) {
+            toggleChatWindow(true);
+        }
+    });
     DOMElements.closeChatButton?.addEventListener('click', () => toggleChatWindow(false));
     DOMElements.chatModeTextBtn?.addEventListener('click', () => selectChatMode('text'));
     DOMElements.chatModeVoiceBtn?.addEventListener('click', () => selectChatMode('voice'));
@@ -579,10 +588,17 @@ function handleGeneralCvSubmission(event) {
 
 // --- Chat Functionality ---
 function toggleChatWindow(forceState) {
-    const isOpen = DOMElements.chatWindowContainer.classList.toggle('show', forceState);
-    appState.chat.isWindowOpen = isOpen;
-    DOMElements.chatToggleButton.setAttribute('aria-expanded', isOpen.toString());
-    if (isOpen && appState.chat.mode === 'text') DOMElements.chatInputControl.focus();
+    // اجعل الدردشة لا تغلق عند الضغط على الزر، فقط عند الضغط على زر الإغلاق
+    if (forceState === false) {
+        DOMElements.chatWindowContainer.classList.remove('show');
+        appState.chat.isWindowOpen = false;
+        DOMElements.chatToggleButton.setAttribute('aria-expanded', 'false');
+    } else {
+        DOMElements.chatWindowContainer.classList.add('show');
+        appState.chat.isWindowOpen = true;
+        DOMElements.chatToggleButton.setAttribute('aria-expanded', 'true');
+        if (appState.chat.mode === 'text') DOMElements.chatInputControl.focus();
+    }
 }
 
 function selectChatMode(mode) {
