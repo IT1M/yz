@@ -2,12 +2,12 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <title>تسجيل دخول</title>
+  <title>تسجيل حساب جديد</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500&display=swap" rel="stylesheet" />
   <style>
     body {
       font-family: 'Cairo', sans-serif;
-      background: linear-gradient(to bottom right, #f1f5f9, #dbeafe);
+      background: linear-gradient(to bottom right, #dbeafe, #f1f5f9);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -68,13 +68,14 @@
 </head>
 <body>
   <div class="box">
-    <h2>تسجيل دخول</h2>
+    <h2>تسجيل حساب جديد</h2>
+    <input type="text" id="name" placeholder="الاسم الكامل" />
     <input type="email" id="email" placeholder="الإيميل" />
     <input type="password" id="password" placeholder="كلمة المرور" />
-    <button onclick="login()">دخول</button>
+    <button onclick="signUp()">تسجيل</button>
     <p id="status"></p>
     <div class="text">
-      ما عندك حساب؟ <a href="signup.html">سجّل الآن</a>
+      عندك حساب؟ <a href="login.html">تسجيل دخول</a>
     </div>
   </div>
 
@@ -84,31 +85,45 @@
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFvdnNwdmVnbWp2c2x6aXppYnhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyMTU0NjcsImV4cCI6MjA2NDc5MTQ2N30.RNvl_GWX8fWNnGi2Nkq4HPVTYFbhKamfygdvtG55bOY";
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    async function login() {
+    async function signUp() {
+      const name = document.getElementById("name").value.trim();
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value.trim();
       const status = document.getElementById("status");
 
-      if (!email || !password) {
+      if (!email || !password || !name) {
         status.style.color = "red";
-        status.textContent = "الرجاء تعبئة الإيميل وكلمة المرور.";
+        status.textContent = "الرجاء تعبئة جميع الحقول.";
         return;
       }
 
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
 
       if (error) {
         status.style.color = "red";
-        status.textContent = "فشل تسجيل الدخول: " + error.message;
-      } else {
-        status.style.color = "green";
-        status.textContent = "تم تسجيل الدخول بنجاح!";
-        // مثلاً انقله لصفحة الحساب
-        // window.location.href = "dashboard.html";
+        status.textContent = "خطأ: " + error.message;
+        return;
       }
+
+      // حفظ الاسم في جدول profiles
+      const user = data.user;
+      const { error: insertError } = await supabase
+        .from("profiles")
+        .insert([{ id: user.id, email, name }]);
+
+      if (insertError) {
+        status.style.color = "orange";
+        status.textContent = "تم التسجيل، لكن حدث خطأ في حفظ البيانات.";
+        return;
+      }
+
+      status.style.color = "green";
+      status.textContent = "تم إنشاء الحساب بنجاح!";
+      // تقدر تنقل المستخدم لصفحة ثانية
+      // window.location.href = "dashboard.html";
     }
   </script>
 </body>
