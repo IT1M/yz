@@ -681,40 +681,181 @@
 
         @media (max-width: 768px) {
             .container {
-                padding: 10px;
+                padding: 5px;
+                max-width: 100vw;
             }
-            
+            .header {
+                padding: 15px;
+                border-radius: 10px;
+                margin-bottom: 15px;
+            }
             .header h1 {
-                font-size: 2rem;
+                font-size: 1.4rem;
             }
-            
+            .header p {
+                font-size: 1rem;
+            }
+            .logo {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
             .tabs {
                 flex-direction: column;
+                font-size: 1rem;
             }
-            
+            .tab {
+                padding: 12px 10px;
+                font-size: 1rem;
+            }
             .tab-content {
-                padding: 20px;
+                padding: 10px;
+                min-height: 300px;
             }
-            
+            .card {
+                padding: 12px;
+                border-radius: 10px;
+            }
+            .form-group label,
+            .form-control,
+            .btn {
+                font-size: 1rem;
+            }
+            .form-control {
+                padding: 10px;
+                border-radius: 7px;
+            }
+            .btn {
+                padding: 10px 15px;
+                border-radius: 7px;
+            }
+            .progress-bar {
+                margin: 10px 0;
+            }
+            .file-upload-label {
+                padding: 18px;
+                font-size: 0.95rem;
+            }
             .skills-radar {
                 grid-template-columns: 1fr;
+                gap: 10px;
             }
-
+            .skill-item {
+                padding: 10px;
+            }
             .interview-mode-selector {
                 flex-direction: column;
+                gap: 10px;
             }
-
+            .mode-option {
+                max-width: 100%;
+                padding: 12px 10px;
+                font-size: 1rem;
+            }
+            .voice-interview-container {
+                padding: 10px;
+                border-radius: 10px;
+            }
+            .voice-visualizer {
+                height: 60px;
+                margin: 10px 0;
+            }
             .voice-controls-advanced {
                 flex-wrap: wrap;
+                gap: 10px;
+                margin: 10px 0;
             }
-
+            .voice-btn-advanced {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+            .recording-indicator {
+                margin: 10px 0;
+            }
+            .question-card {
+                padding: 10px;
+                border-radius: 10px;
+                margin-bottom: 10px;
+            }
+            .written-interview-container {
+                padding: 10px;
+                border-radius: 10px;
+            }
+            .question-header {
+                gap: 7px;
+                margin-bottom: 10px;
+                padding-bottom: 7px;
+            }
+            .question-number {
+                width: 28px;
+                height: 28px;
+                font-size: 1rem;
+            }
+            .timer-display {
+                padding: 5px 10px;
+                font-size: 1rem;
+                margin: 5px 0;
+            }
+            .audio-controls {
+                gap: 7px;
+                margin: 10px 0;
+            }
+            .time-remaining {
+                padding: 4px 8px;
+                font-size: 0.95rem;
+            }
+            .admin-dashboard {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                margin: 10px 0;
+            }
+            .stat-card {
+                padding: 10px;
+                border-radius: 10px;
+            }
+            .applicant-detail-modal .modal-content {
+                padding: 10px;
+                border-radius: 10px;
+                max-width: 98vw;
+                max-height: 98vh;
+            }
+            .close-modal {
+                width: 30px;
+                height: 30px;
+                font-size: 1rem;
+                top: 7px;
+                left: 7px;
+            }
             .cv-item {
                 flex-direction: column;
                 text-align: center;
+                padding: 10px;
+                border-radius: 10px;
+                gap: 7px;
             }
-
-            .admin-dashboard {
-                grid-template-columns: 1fr;
+            .filter-controls {
+                gap: 7px;
+                margin: 10px 0;
+            }
+            .filter-btn {
+                padding: 7px 10px;
+                border-radius: 10px;
+                font-size: 0.95rem;
+            }
+            .search-bar {
+                padding: 10px;
+                border-radius: 15px;
+                font-size: 0.95rem;
+            }
+            .export-controls {
+                gap: 7px;
+                margin: 10px 0;
+            }
+            .badge {
+                padding: 3px 8px;
+                border-radius: 10px;
+                font-size: 0.8rem;
             }
         }
 

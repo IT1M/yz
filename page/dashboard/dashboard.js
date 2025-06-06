@@ -185,7 +185,10 @@ const appState = {
         document.getElementById(targetId)?.classList.add('active');
         e.currentTarget.classList.add('active');
         DOMElements.pageTitle.textContent = e.currentTarget.textContent;
+        // إغلاق القائمة الجانبية تلقائياً في الجوال
         if (window.innerWidth < 992) DOMElements.sidebar.classList.remove('open');
+        // تمرير الصفحة للأعلى عند تغيير القسم في الجوال
+        if (window.innerWidth < 768) window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     
     // Job Modal Logic
@@ -304,6 +307,14 @@ const appState = {
     function initializeEventListeners() {
         DOMElements.navLinks.forEach(link => link.addEventListener('click', handleNavigation));
         DOMElements.mobileMenuToggle.addEventListener('click', () => DOMElements.sidebar.classList.toggle('open'));
+        // إغلاق القائمة الجانبية عند الضغط خارجها في الجوال
+        document.addEventListener('click', function(e) {
+            if (window.innerWidth < 992 && DOMElements.sidebar.classList.contains('open')) {
+                if (!DOMElements.sidebar.contains(e.target) && !DOMElements.mobileMenuToggle.contains(e.target)) {
+                    DOMElements.sidebar.classList.remove('open');
+                }
+            }
+        });
         document.getElementById('addJobBtn')?.addEventListener('click', () => openJobModal());
         DOMElements.jobForm.addEventListener('submit', handleJobFormSubmit);
         

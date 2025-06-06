@@ -1145,18 +1145,115 @@ ul, ol {
         bottom: var(--spacing-unit) * 2;
         left: var(--spacing-unit) * 2;
     }
-    .chat-window { bottom: calc(var(--spacing-unit) * 10); }
+    .chat-window {
+        width: 98vw;
+        left: 1vw;
+        max-height: 80vh;
+        bottom: var(--spacing-unit) * 8;
+    }
+    .filters-container {
+        flex-direction: column;
+        gap: var(--spacing-unit);
+        padding: var(--spacing-unit);
+    }
+    .filter-group {
+        min-width: 0;
+        width: 100%;
+    }
+    .jobs-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-unit) * 2;
+    }
+    .job-card {
+        padding: var(--spacing-unit) * 1.5;
+    }
+    .modal-content.large {
+        max-width: 98vw;
+        padding: var(--spacing-unit) * 1.5;
+    }
+    .modal-content {
+        padding: var(--spacing-unit) * 1.2;
+        width: 98vw;
+        max-width: 98vw;
+    }
+    .chat-header h4 {
+        font-size: 1rem;
+    }
+    .chat-messages {
+        padding: var(--spacing-unit);
+        font-size: 0.95rem;
+    }
+    .chat-input-area {
+        padding: var(--spacing-unit);
+        gap: var(--spacing-unit) * 0.5;
+    }
+    #chatInputControl {
+        font-size: 0.95rem;
+        padding: 8px 10px;
+    }
+    #sendChatMessageBtn, #voiceRecognitionBtn {
+        width: 38px;
+        height: 38px;
+        font-size: 1rem;
+    }
+    .general-apply-cta {
+        margin-top: var(--spacing-unit) * 2;
+    }
+    .cta-button {
+        font-size: 0.95rem;
+        padding: var(--spacing-unit) var(--spacing-unit) * 2.5;
+    }
+    .section-title {
+        font-size: 1.2rem;
+        padding-bottom: var(--spacing-unit);
+    }
+    .modal-header h3 {
+        font-size: 1.1rem;
+    }
+    .close-modal-btn {
+        font-size: 1.5rem;
+    }
+    .contact-content {
+        padding: 0 var(--spacing-unit);
+    }
+    .contact-info-item {
+        font-size: 0.95rem;
+    }
+    .footer {
+        font-size: 0.8rem;
+        padding: var(--spacing-unit) * 2 0;
+    }
+    .footer p {
+        font-size: 0.9rem;
+    }
+    .nav-container.container {
+        padding: 0 var(--spacing-unit);
+    }
+    .main-nav.mobile-active .nav-menu {
+        top: calc(var(--header-height) - 10px);
+    }
+    .main-nav.mobile-active .nav-menu a {
+        font-size: 1rem;
+    }
 }
 
-/* Utility class for hiding elements accessibly */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+input, button, select, textarea {
+    font-size: 1rem;
+    min-height: 40px;
+}
+
+.btn, .cta-button, .submit-btn {
+    min-height: 44px;
+    font-size: 1rem;
+}
+
+@media (max-width: 350px) {
+    .chat-window, .modal-content, .modal-content.large {
+        width: 99vw;
+        max-width: 99vw;
+        padding: var(--spacing-unit);
+    }
+    .hero h1 {
+        font-size: 1.1rem;
+    }
 }
