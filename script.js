@@ -343,14 +343,10 @@ function updateUserMenuDisplay() {
         userIcon.style.color = ''; // Reset color
         DOMElements.userMenuButton.setAttribute('aria-label', 'قائمة المستخدم');
         DOMElements.userDropdownMenu.innerHTML = `
-            <a href="#" id="loginMenuLinkInternal" role="menuitem"><i class="fas fa-sign-in-alt"></i> تسجيل الدخول</a>
+            <a href="page/login/login.html" id="loginMenuLinkInternal" role="menuitem"><i class="fas fa-sign-in-alt"></i> تسجيل الدخول</a>
             <a href="#" id="registerMenuLinkInternal" role="menuitem"><i class="fas fa-user-plus"></i> إنشاء حساب</a>
         `;
-        document.getElementById('loginMenuLinkInternal')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            showLoginModal();
-            window.location.href = 'page/login/login.html';
-        });
+/* تم تعطيل منع الانتقال التلقائي لرابط تسجيل الدخول */
         document.getElementById('registerMenuLinkInternal')?.addEventListener('click', (e) => { e.preventDefault(); showRegisterModal(); });
     }
 }
