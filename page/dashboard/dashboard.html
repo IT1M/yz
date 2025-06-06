@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم نظام التوظيف - ميس</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">ميس للمنتجات الطبية</a>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#overview" class="nav-link active" data-target="overview"><i class="fas fa-tachometer-alt"></i> نظرة عامة</a></li>
+                    <li><a href="#jobs" class="nav-link" data-target="jobs"><i class="fas fa-briefcase"></i> إدارة الوظائف</a></li>
+                    <li><a href="#applications" class="nav-link" data-target="applications"><i class="fas fa-file-alt"></i> طلبات التوظيف</a></li>
+                    <li><a href="#users" class="nav-link" data-target="users"><i class="fas fa-users"></i> إدارة المستخدمين</a></li>
+                    <li><a href="#settings" class="nav-link" data-target="settings"><i class="fas fa-cog"></i> الإعدادات</a></li>
+                    <li><a href="index.html" id="logoutButton"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <p>© 2024 ميس للمنتجات الطبية</p>
+            </div>
+        </aside>
+
+        <main class="main-content-area">
+            <header class="main-header">
+                <button id="mobileMenuToggle" class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
+                <div class="header-title">لوحة التحكم</div>
+                <div class="user-info">
+                    <span id="currentAdminName">اسم المدير</span>
+                    <img src="https://via.placeholder.com/40" alt="Admin Avatar" id="adminAvatar" class="admin-avatar">
+                </div>
+            </header>
+
+            <div class="page-content">
+                <!-- Overview Section -->
+                <section id="overview" class="dashboard-section active">
+                    <h2><i class="fas fa-tachometer-alt"></i> نظرة عامة</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <i class="fas fa-briefcase"></i>
+                            <div>
+                                <span class="stat-value" id="totalJobsStat">0</span>
+                                <span class="stat-label">وظيفة معروضة</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-file-alt"></i>
+                            <div>
+                                <span class="stat-value" id="totalApplicationsStat">0</span>
+                                <span class="stat-label">طلب توظيف</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-users"></i>
+                            <div>
+                                <span class="stat-value" id="totalUsersStat">0</span>
+                                <span class="stat-label">مستخدم مسجل</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <span class="stat-value" id="acceptedApplicationsStat">0</span>
+                                <span class="stat-label">طلبات مقبولة</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="charts-container">
+                        <div class="chart-card">
+                            <h3><i class="fas fa-chart-pie"></i> الطلبات حسب الحالة</h3>
+                            <canvas id="applicationsStatusChart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3><i class="fas fa-chart-bar"></i> الوظائف حسب القسم</h3>
+                            <canvas id="jobsByDepartmentChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Jobs Section -->
+                <section id="jobs" class="dashboard-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-briefcase"></i> إدارة الوظائف</h2>
+                        <button class="btn btn-primary" id="addJobBtn"><i class="fas fa-plus"></i> إضافة وظيفة</button>
+                    </div>
+                    <div class="table-container responsive-table">
+                        <table id="jobsTable">
+                            <thead><tr><th>العنوان</th><th>القسم</th><th>الموقع</th><th>تاريخ النشر</th><th>الإجراءات</th></tr></thead>
+                            <tbody><!-- Data will be populated by JS --></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Applications Section -->
+                <section id="applications" class="dashboard-section">
+                     <div class="section-header">
+                        <h2><i class="fas fa-file-alt"></i> طلبات التوظيف</h2>
+                        <div class="filters">
+                            <select id="applicationStatusFilter">
+                                <option value="">كل الحالات</option>
+                                <option value="قيد المراجعة">قيد المراجعة</option>
+                                <option value="تمت المقابلة">تمت المقابلة</option>
+                                <option value="مقبول">مقبول</option>
+                                <option value="مرفوض">مرفوض</option>
+                                <option value="تقديم عام محفوظ">تقديم عام محفوظ</option>
+                            </select>
+                            <input type="text" id="applicationSearchInput" placeholder="بحث بالاسم أو الوظيفة...">
+                        </div>
+                    </div>
+                    <div class="table-container responsive-table">
+                        <table id="applicationsTable">
+                            <thead><tr><th>المتقدم</th><th>الوظيفة</th><th>تاريخ التقديم</th><th>الحالة</th><th>الإجراءات</th></tr></thead>
+                            <tbody><!-- Data will be populated by JS --></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Users Section -->
+                <section id="users" class="dashboard-section">
+                     <div class="section-header">
+                        <h2><i class="fas fa-users"></i> إدارة المستخدمين</h2>
+                        <!-- Add user button if needed -->
+                    </div>
+                    <div class="table-container responsive-table">
+                        <table id="usersTable">
+                             <thead><tr><th>الاسم</th><th>البريد</th><th>الهاتف</th><th>تاريخ الانضمام</th><th>النوع</th><th>الإجراءات</th></tr></thead>
+                            <tbody><!-- Data will be populated by JS --></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="settings" class="dashboard-section">
+                    <h2><i class="fas fa-cog"></i> الإعدادات</h2>
+                    <div class="settings-content">
+                        <p>هنا يمكن وضع إعدادات النظام المختلفة. هذه منطقة تجريبية.</p>
+                        <div class="form-group">
+                            <label for="siteNameSetting">اسم الموقع:</label>
+                            <input type="text" id="siteNameSetting" value="ميس للمنتجات الطبية - التوظيف">
+                        </div>
+                        <div class="form-group">
+                            <label for="adminEmailSetting">بريد المدير للتنبيهات:</label>
+                            <input type="email" id="adminEmailSetting" value="admin@mays-medical.com">
+                        </div>
+                        <button class="btn btn-primary">حفظ الإعدادات</button>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Add/Edit Job Modal -->
+    <div id="jobModal" class="modal">
+        <div class="modal-content">
+            <button class="close-button" data-modal-id="jobModal">×</button>
+            <h3 id="jobModalTitle">إضافة وظيفة جديدة</h3>
+            <form id="jobForm">
+                <input type="hidden" id="jobId">
+                <div class="form-group">
+                    <label for="jobTitle">عنوان الوظيفة:</label>
+                    <input type="text" id="jobTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="jobDepartment">القسم:</label>
+                    <select id="jobDepartment" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="jobLocation">الموقع:</label>
+                    <select id="jobLocation" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="jobType">نوع الدوام:</label>
+                    <select id="jobType" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="jobDescription">الوصف الكامل:</label>
+                    <textarea id="jobDescription" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="jobResponsibilities">المسؤوليات (افصل بينها بأسطر جديدة):</label>
+                    <textarea id="jobResponsibilities" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="jobQualifications">المؤهلات (افصل بينها بأسطر جديدة):</label>
+                    <textarea id="jobQualifications" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="jobSkills">المهارات (افصل بينها بفواصل ","):</label>
+                    <input type="text" id="jobSkills" placeholder="مثال: JavaScript, React, SQL" required>
+                </div>
+                <button type="submit" class="btn btn-success">حفظ</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- View Application Details Modal -->
+    <div id="applicationDetailsModal" class="modal">
+        <div class="modal-content large">
+            <button class="close-button" data-modal-id="applicationDetailsModal">×</button>
+            <h3 id="applicationModalTitle">تفاصيل طلب التوظيف</h3>
+            <div id="applicationDetailsContent">
+                <!-- Detailed application info here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert/Notification Placeholder -->
+    <div id="alertNotification" class="alert-notification"></div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
