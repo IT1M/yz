@@ -155,6 +155,9 @@ const appState = {
                 <td data-label="الإجراءات" class="action-buttons">
                     <button class="btn btn-primary btn-sm view-application" data-id="${app.id}"><i class="fas fa-eye"></i> عرض</button>
                     <button class="btn btn-danger btn-sm delete-application" data-id="${app.id}"><i class="fas fa-trash"></i> حذف</button>
+                    <button class="btn btn-success btn-sm btn-ai-screening" data-id="${app.id}">
+                        <i class="fas fa-robot"></i> بدء الفحص بالذكاء الاصطناعي
+                    </button>
                 </td>
             </tr>
         `).join('');
@@ -285,6 +288,38 @@ const appState = {
         
         if (target.classList.contains('delete-user')) deleteItem('users', id, 'المستخدم');
         
+        if (target.classList.contains('btn-ai-screening')) {
+            const app = appState.applications.find(a => a.id === id);
+            if (!app) return;
+            // 1. Update status
+            app.status = "في انتظار فحص الذكاء الاصطناعي";
+            // 2. Generate unique token and link
+            const token = 'AI-' + Math.random().toString(36).substr(2, 12) + Date.now();
+            app.aiScreeningToken = token;
+            app.aiScreeningCompleted = false;
+            // 3. Save changes
+            saveData('applications', appState.applications);
+            renderApplicationsTable();
+            renderOverview();
+            // 4. Prepare email content
+            const aiLink = `${window.location.origin}${window.location.pathname.replace('dashboard/dashboard.html','investment-AI/investment-AI.html')}?token=${token}`;
+            const emailSubject = encodeURIComponent("دعوة لإجراء فحص الذكاء الاصطناعي لوظيفة");
+            const emailBody = encodeURIComponent(
+                `مرحباً ${app.applicantName}،
+
+نشكرك على تقدمك لوظيفة "${app.jobTitle || 'تقديم عام'}" في شركة ميس للمنتجات الطبية.
+نود دعوتك لإجراء فحص الذكاء الاصطناعي كخطوة مهمة في عملية التوظيف.
+
+يرجى الضغط على الرابط التالي للبدء (الرابط صالح للاستخدام مرة واحدة فقط):
+${aiLink}
+
+نتمنى لك التوفيق!
+فريق التوظيف - ميس`
+            );
+            // 5. Show modal with prefilled email
+            showAIScreeningEmailModal(app.applicantEmail, emailSubject, emailBody, aiLink);
+        }
+
         if (target.classList.contains('status-select')) {
             const app = appState.applications.find(a => a.id === id);
             app.status = target.value;
@@ -309,6 +344,15 @@ const appState = {
         DOMElements.mobileMenuToggle.addEventListener('click', () => DOMElements.sidebar.classList.toggle('open'));
         // إغلاق القائمة الجانبية عند الضغط خارجها في الجوال
         document.addEventListener('click', function(e) {
+// --- AI Screening Email Modal ---
+    function showAIScreeningEmailModal(email, subject, body, link) {
+        document.getElementById('aiScreeningEmailTo').textContent = email;
+        document.getElementById('aiScreeningLink').textContent = link;
+        document.getElementById('aiScreeningLink').href = link;
+        document.getElementById('aiScreeningEmailBody').value = decodeURIComponent(body);
+        document.getElementById('aiScreeningMailtoBtn').href = `mailto:${email}?subject=${subject}&body=${body}`;
+        document.getElementById('aiScreeningEmailModal').style.display = 'flex';
+    }
             if (window.innerWidth < 992 && DOMElements.sidebar.classList.contains('open')) {
                 if (!DOMElements.sidebar.contains(e.target) && !DOMElements.mobileMenuToggle.contains(e.target)) {
                     DOMElements.sidebar.classList.remove('open');

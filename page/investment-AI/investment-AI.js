@@ -1,3 +1,29 @@
+// --- AI Screening Token Logic ---
+const urlParams = new URLSearchParams(window.location.search);
+const aiToken = urlParams.get('token');
+let aiApplication = null;
+if (aiToken) {
+    const applications = JSON.parse(localStorage.getItem('yzMockApplications')) || [];
+    aiApplication = applications.find(app => app.aiScreeningToken === aiToken);
+    if (!aiApplication) {
+        alert('رابط الفحص غير صالح أو منتهي.');
+        window.location.href = '../index.html';
+    }
+} else {
+    alert('رابط الفحص غير صالح.');
+    window.location.href = '../index.html';
+}
+
+// Call this function after AI screening is completed
+function saveAIScreeningResults(results) {
+    const applications = JSON.parse(localStorage.getItem('yzMockApplications')) || [];
+    const idx = applications.findIndex(app => app.aiScreeningToken === aiToken);
+    if (idx !== -1) {
+        applications[idx].aiScreeningCompleted = true;
+        applications[idx].aiScreeningResults = results; // {cvAnalysis, interviewSummary, finalEvaluation}
+        localStorage.setItem('yzMockApplications', JSON.stringify(applications));
+    }
+}
         // متغيرات عامة
         const GEMINI_API_KEY = 'AIzaSyAO8Dw-QeBiGiPZZfCx_3ueTl0LiK9ZFj0';
         const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
@@ -987,6 +1013,13 @@
                 updateApplicantData(applicant);
                 
                 displayFinalEvaluation(applicant, evaluation);
+                
+                // Save AI screening results
+                saveAIScreeningResults({
+                    cvAnalysis: applicant.analysis,
+                    interviewSummary: interviewSummary,
+                    finalEvaluation: evaluation
+                });
 
             } catch (error) {
                 console.error('Error generating final evaluation:', error);

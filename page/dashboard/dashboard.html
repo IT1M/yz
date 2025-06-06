@@ -198,6 +198,22 @@
         </div>
     </div>
 
+<!-- AI Screening Email Modal -->
+    <div id="aiScreeningEmailModal" class="modal" role="dialog" aria-labelledby="aiScreeningEmailModalTitle" aria-modal="true">
+        <div class="modal-content">
+            <button class="close-button" data-modal-id="aiScreeningEmailModal" aria-label="إغلاق">×</button>
+            <h3 id="aiScreeningEmailModalTitle">إرسال رابط فحص الذكاء الاصطناعي</h3>
+            <div class="modal-body">
+                <p><strong>البريد الإلكتروني للمرشح:</strong> <span id="aiScreeningEmailTo"></span></p>
+                <p><strong>رابط الفحص:</strong> <a href="#" id="aiScreeningLink" target="_blank"></a></p>
+                <p><strong>نص البريد المقترح:</strong></p>
+                <textarea id="aiScreeningEmailBody" rows="8" style="width:100%;font-family:inherit;" readonly></textarea>
+                <div style="margin-top:15px;">
+                    <a id="aiScreeningMailtoBtn" class="btn btn-primary" href="#" target="_blank"><i class="fas fa-envelope"></i> فتح البريد الإلكتروني</a>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Global Alert Notification -->
     <div id="alertNotification" class="alert-notification" role="alert"></div>
 

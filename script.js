@@ -346,7 +346,11 @@ function updateUserMenuDisplay() {
             <a href="#" id="loginMenuLinkInternal" role="menuitem"><i class="fas fa-sign-in-alt"></i> تسجيل الدخول</a>
             <a href="#" id="registerMenuLinkInternal" role="menuitem"><i class="fas fa-user-plus"></i> إنشاء حساب</a>
         `;
-        document.getElementById('loginMenuLinkInternal')?.addEventListener('click', (e) => { e.preventDefault(); showLoginModal(); });
+        document.getElementById('loginMenuLinkInternal')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            showLoginModal();
+            window.location.href = 'page/login/login.html';
+        });
         document.getElementById('registerMenuLinkInternal')?.addEventListener('click', (e) => { e.preventDefault(); showRegisterModal(); });
     }
 }
