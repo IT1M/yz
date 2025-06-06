@@ -1,130 +1,384 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <title>تسجيل حساب جديد</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500&display=swap" rel="stylesheet" />
-  <style>
-    body {
-      font-family: 'Cairo', sans-serif;
-      background: linear-gradient(to bottom right, #dbeafe, #f1f5f9);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .box {
-      background: white;
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 400px;
-    }
-    h2 {
-      margin-bottom: 20px;
-      color: #111827;
-      text-align: center;
-    }
-    input {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      background-color: #0d9488;
-      color: white;
-      font-size: 16px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0f766e;
-    }
-    .text {
-      text-align: center;
-      margin-top: 10px;
-      font-size: 14px;
-    }
-    .text a {
-      color: #0d9488;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    #status {
-      text-align: center;
-      margin-top: 10px;
-      font-size: 15px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء حساب جديد</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            direction: ltr;
+            text-align: left;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .password-strength {
+            margin-top: 0.5rem;
+            font-size: 12px;
+        }
+
+        .strength-bar {
+            height: 4px;
+            background-color: #e1e5e9;
+            border-radius: 2px;
+            margin-top: 0.25rem;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s;
+            border-radius: 2px;
+        }
+
+        .strength-weak { background-color: #dc3545; width: 25%; }
+        .strength-fair { background-color: #ffc107; width: 50%; }
+        .strength-good { background-color: #17a2b8; width: 75%; }
+        .strength-strong { background-color: #28a745; width: 100%; }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-bottom: 1rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .link {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        .message {
+            padding: 10px;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 14px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            margin-left: 8px;
+            width: auto;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem;
+                margin: 10px;
+            }
+            
+            .logo h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="box">
-    <h2>تسجيل حساب جديد</h2>
-    <input type="text" id="name" placeholder="الاسم الكامل" />
-    <input type="email" id="email" placeholder="الإيميل" />
-    <input type="password" id="password" placeholder="كلمة المرور" />
-    <button onclick="signUp()">تسجيل</button>
-    <p id="status"></p>
-    <div class="text">
-      عندك حساب؟ <a href="login.html">تسجيل دخول</a>
+    <div class="container">
+        <div class="logo">
+            <h1>إنشاء حساب جديد</h1>
+            <p>انضم إلينا اليوم</p>
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="fullName">الاسم الكامل</label>
+                <input type="text" id="fullName" name="fullName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">البريد الإلكتروني</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">كلمة المرور</label>
+                <input type="password" id="password" name="password" required>
+                <div class="password-strength">
+                    <div class="strength-text">قوة كلمة المرور: <span id="strengthText">ضعيفة</span></div>
+                    <div class="strength-bar">
+                        <div id="strengthFill" class="strength-fill"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">تأكيد كلمة المرور</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="terms" name="terms" required>
+                <label for="terms">أوافق على <a href="#" class="link">الشروط والأحكام</a></label>
+            </div>
+
+            <button type="submit" class="btn" id="registerBtn">إنشاء الحساب</button>
+        </form>
+
+        <div class="text-center">
+            <p>لديك حساب بالفعل؟ <a href="login.html" class="link">تسجيل الدخول</a></p>
+        </div>
     </div>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <script>
-    const SUPABASE_URL = "https://qovspvegmjvslzizibxr.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFvdnNwdmVnbWp2c2x6aXppYnhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyMTU0NjcsImV4cCI6MjA2NDc5MTQ2N30.RNvl_GWX8fWNnGi2Nkq4HPVTYFbhKamfygdvtG55bOY";
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    <script>
+        // إعداد Supabase
+        const { createClient } = supabase;
+        const supabaseUrl = 'https://qovspvegmjvslzizibxr.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFvdnNwdmVnbWp2c2x6aXppYnhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyMTU0NjcsImV4cCI6MjA2NDc5MTQ2N30.RNvl_GWX8fWNnGi2Nkq4HPVTYFbhKamfygdvtG55bOY';
+        const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
-    async function signUp() {
-      const name = document.getElementById("name").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const status = document.getElementById("status");
+        // عناصر النموذج
+        const registerForm = document.getElementById('registerForm');
+        const registerBtn = document.getElementById('registerBtn');
+        const messageDiv = document.getElementById('message');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const strengthText = document.getElementById('strengthText');
+        const strengthFill = document.getElementById('strengthFill');
 
-      if (!email || !password || !name) {
-        status.style.color = "red";
-        status.textContent = "الرجاء تعبئة جميع الحقول.";
-        return;
-      }
+        // دالة لعرض الرسائل
+        function showMessage(message, type) {
+            messageDiv.textContent = message;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                }, 10000);
+            } else {
+                setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
 
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
+        // دالة لتقييم قوة كلمة المرور
+        function checkPasswordStrength(password) {
+            let score = 0;
+            let feedback = [];
 
-      if (error) {
-        status.style.color = "red";
-        status.textContent = "خطأ: " + error.message;
-        return;
-      }
+            if (password.length >= 8) score++;
+            else feedback.push('8 أحرف على الأقل');
 
-      // حفظ الاسم في جدول profiles
-      const user = data.user;
-      const { error: insertError } = await supabase
-        .from("profiles")
-        .insert([{ id: user.id, email, name }]);
+            if (/[a-z]/.test(password)) score++;
+            else feedback.push('حرف صغير واحد على الأقل');
 
-      if (insertError) {
-        status.style.color = "orange";
-        status.textContent = "تم التسجيل، لكن حدث خطأ في حفظ البيانات.";
-        return;
-      }
+            if (/[A-Z]/.test(password)) score++;
+            else feedback.push('حرف كبير واحد على الأقل');
 
-      status.style.color = "green";
-      status.textContent = "تم إنشاء الحساب بنجاح!";
-      // تقدر تنقل المستخدم لصفحة ثانية
-      // window.location.href = "dashboard.html";
-    }
-  </script>
+            if (/[0-9]/.test(password)) score++;
+            else feedback.push('رقم واحد على الأقل');
+
+            if (/[^A-Za-z0-9]/.test(password)) score++;
+            else feedback.push('رمز خاص واحد على الأقل');
+
+            const strengths = ['ضعيفة جداً', 'ضعيفة', 'متوسطة', 'جيدة', 'قوية'];
+            const classes = ['strength-weak', 'strength-weak', 'strength-fair', 'strength-good', 'strength-strong'];
+
+            return {
+                score: score,
+                text: strengths[score],
+                class: classes[score],
+                feedback: feedback
+            };
+        }
+
+        // مراقبة تغيير كلمة المرور
+        passwordInput.addEventListener('input', (e) => {
+            const password = e.target.value;
+            const strength = checkPasswordStrength(password);
+            
+            strengthText.textContent = strength.text;
+            strengthFill.className = `strength-fill ${strength.class}`;
+        });
+
+        // التحقق من تطابق كلمات المرور
+        confirmPasswordInput.addEventListener('input', (e) => {
+            const password = passwordInput.value;
+            const confirmPassword = e.target.value;
+            
+            if (confirmPassword && password !== confirmPassword) {
+                e.target.style.borderColor = '#dc3545';
+            } else {
+                e.target.style.borderColor = '#e1e5e9';
+            }
+        });
+
+        // معالج التسجيل
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fullName = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            const terms = document.getElementById('terms').checked;
+
+            // التحقق من تطابق كلمات المرور
+            if (password !== confirmPassword) {
+                showMessage('كلمات المرور غير متطابقة', 'error');
+                return;
+            }
+
+            // التحقق من قوة كلمة المرور
+            const strength = checkPasswordStrength(password);
+            if (strength.score < 3) {
+                showMessage('كلمة المرور ضعيفة جداً. يرجى استخدام كلمة مرور أقوى', 'error');
+                return;
+            }
+
+            // التحقق من الموافقة على الشروط
+            if (!terms) {
+                showMessage('يجب الموافقة على الشروط والأحكام', 'error');
+                return;
+            }
+
+            registerBtn.disabled = true;
+            registerBtn.textContent = 'جاري إنشاء الحساب...';
+
+            try {
+                const { data, error } = await supabaseClient.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            full_name: fullName
+                        }
+                    }
+                });
+
+                if (error) {
+                    throw error;
+                }
+
+                if (data.user) {
+                    showMessage('تم إنشاء الحساب بنجاح! تم إرسال رسالة تأكيد إلى بريدك الإلكتروني', 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'verify.html';
+                    }, 3000);
+                }
+
+            } catch (error) {
+                let errorMessage = 'حدث خطأ أثناء إنشاء الحساب';
+                
+                if (error.message.includes('User already registered')) {
+                    errorMessage = 'البريد الإلكتروني مسجل بالفعل';
+                } else if (error.message.includes('Password should be at least 6 characters')) {
+                    errorMessage = 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+                } else if (error.message.includes('Invalid email')) {
+                    errorMessage = 'البريد الإلكتروني غير صالح';
+                }
+                
+                showMessage(errorMessage, 'error');
+            } finally {
+                registerBtn.disabled = false;
+                registerBtn.textContent = 'إنشاء الحساب';
+            }
+        });
+    </script>
 </body>
 </html>
