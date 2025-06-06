@@ -7,7 +7,7 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" rel="stylesheet">
     <!-- Google Fonts (Cairo) -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
@@ -45,99 +45,105 @@
         <!-- Hero Section -->
         <section id="home" class="hero">
             <div class="hero-content">
-                <h1>انضم إلى فريق يبتكر لمستقبل الرعاية الصحية</h1>
-                <p>في ميس للمنتجات الطبية، نصنع الفرق. نبحث عن مواهب شغوفة للمساهمة في تطوير حلول طبية رائدة تحدث تأثيرًا إيجابيًا في حياة الناس.</p>
-                <a href="#jobs" class="cta-button">استكشف الفرص الوظيفية <i class="fas fa-arrow-left"></i></a>
+                <h1 class="animate-hero">انضم إلى فريق <span class="highlight-word">يبتكر</span><br>لمستقبل الرعاية الصحية</h1>
+                <p class="animate-hero" style="--animation-delay: 0.2s;">في ميس للمنتجات الطبية، نصنع الفرق. نبحث عن مواهب شغوفة للمساهمة في تطوير حلول طبية رائدة تحدث تأثيرًا إيجابيًا في حياة الناس.</p>
+                <a href="#jobs" class="cta-button animate-hero" style="--animation-delay: 0.4s;">استكشف الفرص الوظيفية <i class="fas fa-arrow-left"></i></a>
             </div>
         </section>
 
-        <!-- Company Culture Section -->
+        <!-- Company Culture Section (Placeholder)-->
         <section id="culture" class="section">
-            <div class="container">
+             <div class="container">
                 <h2 class="section-title">ثقافتنا في ميس</h2>
-                <div class="culture-grid">
-                    <div class="culture-card">
-                        <i class="fas fa-heartbeat"></i>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; text-align: center;">
+                    <div>
+                        <i class="fas fa-heartbeat" style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
                         <h3>الرعاية أولاً</h3>
                         <p>نضع صحة ورفاهية مرضانا وموظفينا في صميم كل ما نقوم به.</p>
                     </div>
-                    <div class="culture-card">
-                        <i class="fas fa-rocket"></i>
+                    <div>
+                        <i class="fas fa-rocket" style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
                         <h3>الابتكار المستدام</h3>
                         <p>نشجع على التفكير الإبداعي وندعم الحلول التي تحدث تطوراً حقيقياً.</p>
                     </div>
-                    <div class="culture-card">
-                        <i class="fas fa-handshake"></i>
+                    <div>
+                        <i class="fas fa-handshake" style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
                         <h3>التعاون المثمر</h3>
                         <p>نؤمن بقوة العمل الجماعي ونعزز بيئة داعمة وشاملة للجميع.</p>
                     </div>
-                    <div class="culture-card">
-                        <i class="fas fa-medal"></i>
+                     <div>
+                        <i class="fas fa-medal" style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
                         <h3>السعي للتميز</h3>
                         <p>نلتزم بأعلى معايير الجودة ونسعى للريادة في مجالنا.</p>
-                    </div>
-                </div>
-                <h3 class="sub-section-title">لماذا تختار ميس؟</h3>
-                <div class="culture-grid">
-                    <div class="culture-card">
-                        <i class="fas fa-briefcase-medical"></i>
-                        <h3>تأثير حقيقي</h3>
-                        <p>ساهم في تطوير منتجات وحلول طبية تُحدث فرقًا في حياة الناس.</p>
-                    </div>
-                    <div class="culture-card">
-                        <i class="fas fa-chart-line"></i>
-                        <h3>فرص نمو</h3>
-                        <p>نستثمر في تطوير مهاراتك ونوفر مسارات وظيفية واعدة.</p>
-                    </div>
-                    <div class="culture-card">
-                        <i class="fas fa-users-cog"></i>
-                        <h3>بيئة ملهمة</h3>
-                        <p>انضم إلى فريق من الخبراء والمبدعين في بيئة عمل محفزة.</p>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Jobs Section -->
-        <section id="jobs" class="section jobs-section">
+        <section id="jobs" class="section">
             <div class="container">
                 <h2 class="section-title">انضم إلى فريقنا</h2>
-                <div class="filters">
-                    <select class="filter-select" id="departmentFilter" aria-label="تصفية حسب القسم">
-                        <option value="">جميع الأقسام</option>
-                    </select>
-                    <select class="filter-select" id="locationFilter" aria-label="تصفية حسب الموقع">
-                        <option value="">جميع المواقع</option>
-                    </select>
-                    <select class="filter-select" id="typeFilter" aria-label="تصفية حسب نوع الدوام">
-                        <option value="">جميع أنواع الدوام</option>
-                    </select>
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label for="departmentFilter">القسم</label>
+                        <select class="filter-select" id="departmentFilter" aria-label="تصفية حسب القسم">
+                            <option value="">جميع الأقسام</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="locationFilter">الموقع</label>
+                        <select class="filter-select" id="locationFilter" aria-label="تصفية حسب الموقع">
+                            <option value="">جميع المواقع</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="typeFilter">نوع الدوام</label>
+                        <select class="filter-select" id="typeFilter" aria-label="تصفية حسب نوع الدوام">
+                            <option value="">جميع أنواع الدوام</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="jobs-grid" id="jobsGridContainer" aria-live="polite">
-                    <p id="noJobsMessage" class="no-results-message" style="display:none;">لا توجد وظائف تطابق معايير البحث الحالية.</p>
+                    <!-- Job cards will be injected here by JS -->
+                </div>
+                <div id="noJobsMessage" style="display:none; text-align: center; padding: 2rem 0; color: var(--text-muted);">
+                    <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                    <p>عفواً، لا توجد وظائف تطابق معايير البحث الحالية.</p>
                 </div>
                 <div class="general-apply-cta">
-                    <button class="cta-button" id="showGeneralApplicationModalBtn">
-                        <i class="fas fa-paper-plane"></i> قدم سيرتك الذاتية (تقديم عام)
+                    <button id="showGeneralApplicationModalBtn" class="btn btn-success" style="background-color: var(--success-color);">
+                        <i class="fas fa-file-import"></i> لم تجد وظيفة مناسبة؟ قدم سيرتك الذاتية
                     </button>
                 </div>
             </div>
         </section>
 
         <!-- Contact Us Section -->
-        <section id="contact" class="section">
-            <div class="container">
+        <section id="contact" class="section contact-section">
+            <div class="container contact-content">
                 <h2 class="section-title">تواصل معنا</h2>
-                <p class="contact-intro">
+                <p>
                     إذا كانت لديك أي استفسارات أو ترغب في معرفة المزيد عن فرص العمل في ميس للمنتجات الطبية، فلا تتردد في التواصل معنا.
                 </p>
-                <div class="contact-details">
-                    <p><i class="fas fa-envelope"></i> البريد الإلكتروني: <a href="mailto:careers@mays-medical.com">careers@mays-medical.com</a></p>
-                    <p><i class="fas fa-phone-alt"></i> الهاتف: <a href="tel:+966112345678">+966 11 234 5678</a> (مثال)</p>
+                <div class="contact-info">
+                    <div class="contact-info-item">
+                        <i class="fas fa-envelope"></i> البريد الإلكتروني: <a href="mailto:careers@mays-medical.com">careers@mays-medical.com</a>
+                    </div>
+                    <div class="contact-info-item">
+                        <i class="fas fa-phone-alt"></i> الهاتف: <a href="tel:+966112345678">+966 11 234 5678</a> (مثال)
+                    </div>
                 </div>
             </div>
         </section>
     </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>© 2024 ميس للمنتجات الطبية. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
 
     <!-- Support Chat -->
     <div class="support-chat">
@@ -163,11 +169,11 @@
                 <div class="message bot">مرحباً بك! أنا مساعدك الذكي من ميس. كيف يمكنني خدمتك اليوم؟</div>
             </div>
             <div class="chat-input-area">
-                <input type="text" class="chat-input" id="chatInputControl" placeholder="اكتب رسالتك هنا..." aria-label="أدخل رسالتك النصية">
-                <button class="chat-send-btn" id="sendChatMessageBtn" aria-label="إرسال الرسالة النصية">
+                <input type="text" id="chatInputControl" placeholder="اكتب رسالتك هنا..." aria-label="أدخل رسالتك النصية">
+                <button id="sendChatMessageBtn" aria-label="إرسال الرسالة النصية">
                     <i class="fas fa-paper-plane"></i>
                 </button>
-                <button class="chat-voice-btn" id="voiceRecognitionBtn" aria-label="بدء التسجيل الصوتي" style="display: none;">
+                <button id="voiceRecognitionBtn" aria-label="بدء التسجيل الصوتي" style="display: none;">
                     <i class="fas fa-microphone"></i>
                 </button>
             </div>
@@ -191,7 +197,7 @@
                     <label for="loginPasswordInput">كلمة المرور:</label>
                     <input type="password" id="loginPasswordInput" required autocomplete="current-password">
                 </div>
-                <button type="submit" class="submit-btn">تسجيل الدخول</button>
+                <button type="submit" class="submit-btn btn-primary">تسجيل الدخول</button>
                 <p class="form-link">ليس لديك حساب؟ <a href="#" id="switchToRegisterLink">أنشئ حسابًا</a></p>
             </form>
         </div>
@@ -219,13 +225,13 @@
                 </div>
                 <div class="form-group">
                     <label for="registerPasswordInput">كلمة المرور:</label>
-                    <input type="password" id="registerPasswordInput" required minlength="8" autocomplete="new-password">
+                    <input type="password" id="registerPasswordInput" required minlength="6" autocomplete="new-password">
                 </div>
                 <div class="form-group">
                     <label for="confirmPasswordInput">تأكيد كلمة المرور:</label>
-                    <input type="password" id="confirmPasswordInput" required minlength="8" autocomplete="new-password">
+                    <input type="password" id="confirmPasswordInput" required minlength="6" autocomplete="new-password">
                 </div>
-                <button type="submit" class="submit-btn">إنشاء الحساب</button>
+                <button type="submit" class="submit-btn btn-primary">إنشاء الحساب</button>
                 <p class="form-link">لديك حساب بالفعل؟ <a href="#" id="switchToLoginLink">سجل الدخول</a></p>
             </form>
         </div>
@@ -238,7 +244,7 @@
                 <h3 id="jobDetailsModalTitle">تفاصيل الوظيفة</h3>
                 <button class="close-modal-btn" data-modal-id="jobDetailsModalContainer" aria-label="إغلاق نافذة تفاصيل الوظيفة">×</button>
             </div>
-            <div id="jobDetailsModalContent" class="modal-body-scrollable"></div>
+            <div id="jobDetailsModalContent" class="modal-body"></div>
         </div>
     </div>
 
@@ -276,7 +282,7 @@
                     <input type="file" id="applyResumeFileInput" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required>
                     <small id="applyResumeFileError" class="form-error-message"></small>
                 </div>
-                <button type="submit" class="submit-btn">إرسال الطلب</button>
+                <button type="submit" class="submit-btn btn-primary">إرسال الطلب</button>
             </form>
         </div>
     </div>
@@ -320,7 +326,7 @@
                     <input type="file" id="generalApplyResumeFileInput" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required>
                      <small id="generalResumeFileError" class="form-error-message"></small>
                 </div>
-                <button type="submit" class="submit-btn">إرسال السيرة الذاتية</button>
+                <button type="submit" class="submit-btn btn-primary">إرسال السيرة الذاتية</button>
             </form>
         </div>
     </div>
