@@ -773,8 +773,8 @@ ul, ol {
 /* --- Chat Functionality --- */
 .chat-toggle-button {
     position: fixed;
-    bottom: calc(var(--spacing-unit) * 3.5); /* 28px */
-    left: calc(var(--spacing-unit) * 3.5); /* RTL */
+    bottom: calc(var(--spacing-unit) * 3.5);
+    left: calc(var(--spacing-unit) * 3.5);
     width: 80px;
     height: 80px;
     border-radius: 50%;
@@ -791,6 +791,9 @@ ul, ol {
     transition: background 0.25s, box-shadow 0.25s, transform 0.18s;
     outline: none;
     animation: pulseSupportBtn 2.2s infinite;
+    /* تحسين إضافي */
+    border: 3px solid #fff;
+    box-shadow: 0 8px 32px 0 rgba(44,62,80,0.25), 0 2px 8px rgba(52,152,219,0.12), 0 0 0 6px rgba(52,152,219,0.08);
 }
 @keyframes pulseSupportBtn {
     0% { box-shadow: 0 0 0 0 rgba(52,152,219,0.25), 0 8px 32px rgba(44,62,80,0.25); }
@@ -800,11 +803,11 @@ ul, ol {
 .chat-toggle-button:hover, .chat-toggle-button:focus {
     background: linear-gradient(135deg, var(--primary-dark) 60%, var(--accent-dark) 100%);
     color: #fff;
-    transform: scale(1.08) rotate(-3deg);
-    box-shadow: 0 12px 36px rgba(44, 62, 80, 0.32), 0 2px 8px rgba(52, 152, 219, 0.18);
+    transform: scale(1.10) rotate(-4deg);
+    box-shadow: 0 16px 40px rgba(44, 62, 80, 0.38), 0 2px 8px rgba(52, 152, 219, 0.18);
 }
 .chat-toggle-button i {
-    font-size: 2.2em;
+    font-size: 2.3em;
     filter: drop-shadow(0 2px 6px rgba(44,62,80,0.18));
     transition: filter 0.2s;
 }
@@ -812,116 +815,157 @@ ul, ol {
     filter: brightness(1.2) drop-shadow(0 1px 2px rgba(44,62,80,0.12));
 }
 
-/* تحسين نافذة الدردشة عند الفتح */
+/* نافذة الدردشة */
 .chat-window {
     position: fixed;
-    bottom: calc(var(--spacing-unit) * 11); /* Position above toggle button (60px + 20px + 8px margin) */
-    left: calc(var(--spacing-unit) * 2.5); /* RTL */
-    width: 360px;
-    max-height: 520px;
-    background-color: var(--surface-bg);
-    border-radius: var(--border-radius-lg);
-    box-shadow: var(--shadow-lg);
-    display: flex; /* اجعلها تظهر دائمًا */
+    bottom: calc(var(--spacing-unit) * 11);
+    left: calc(var(--spacing-unit) * 2.5);
+    width: 370px;
+    max-height: 540px;
+    background: linear-gradient(135deg, #fafdff 80%, #eaf6fb 100%);
+    border-radius: 22px;
+    box-shadow: 0 12px 40px 0 rgba(44,62,80,0.22), 0 2px 8px rgba(52,152,219,0.10);
+    display: flex;
+    flex-direction: column;
     opacity: 1;
     transform: translateY(0);
     z-index: 1499;
     transition: opacity var(--transition-speed) ease, transform var(--transition-speed) ease, visibility var(--transition-speed) ease;
+    border: 1.5px solid var(--primary-light);
+    overflow: hidden;
 }
 .chat-header {
-    background-color: var(--primary-color);
+    background: linear-gradient(90deg, var(--primary-color) 70%, var(--accent-color) 100%);
     color: var(--surface-bg);
-    padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 2); /* 12px 16px */
-    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+    padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 2);
+    border-radius: 22px 22px 0 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 2px 8px rgba(52,152,219,0.08);
 }
 .chat-header h4 {
-    font-size: 1.1rem; /* ~17.6px */
+    font-size: 1.15rem;
     margin: 0;
     color: var(--surface-bg);
+    letter-spacing: 0.5px;
+    font-weight: 700;
+    text-shadow: 0 1px 4px rgba(44,62,80,0.10);
 }
-.chat-header .close-chat-btn {
+.chat-header .icon-button {
     background: none;
     border: none;
     color: var(--primary-light);
-    font-size: 1.5rem; /* ~24px */
+    font-size: 1.7rem;
     cursor: pointer;
-    padding: 0;
+    padding: 0 2px;
+    border-radius: 50%;
+    transition: background 0.18s, color 0.18s;
 }
-.chat-header .close-chat-btn:hover {
+.chat-header .icon-button:hover {
+    background: rgba(255,255,255,0.13);
     color: var(--surface-bg);
 }
 
-.chat-mode-selector {
+/* أزرار اختيار وضع الدردشة */
+.chat-options {
     display: flex;
-    border-bottom: 1px solid var(--border-color);
-    background-color: var(--light-bg);
+    border-bottom: 1px solid var(--primary-light);
+    background: #f5fafd;
 }
-.chat-mode-btn {
+.chat-option {
     flex: 1;
-    padding: calc(var(--spacing-unit) * 1.25); /* 10px */
+    padding: 12px 0;
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 0.9rem; /* ~14.4px */
-    color: var(--text-muted);
-    transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+    font-size: 1rem;
+    color: var(--primary-dark);
+    transition: background 0.18s, color 0.18s;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--spacing-unit) * 0.5;
-}
-.chat-mode-btn:hover {
-    background-color: var(--border-color);
-    color: var(--primary-dark);
-}
-.chat-mode-btn.active {
-    background-color: var(--surface-bg);
-    color: var(--primary-color);
+    gap: 7px;
     font-weight: 600;
-    border-bottom: 2px solid var(--primary-color);
+    border-bottom: 2.5px solid transparent;
+    outline: none;
+}
+.chat-option.active, .chat-option:focus {
+    background: #eaf6fb;
+    color: var(--accent-color);
+    border-bottom: 2.5px solid var(--accent-color);
+}
+.chat-option i {
+    font-size: 1.1em;
+    color: var(--primary-color);
+    transition: color 0.18s;
+}
+.chat-option.active i {
+    color: var(--accent-color);
 }
 
-.chat-messages-container {
+/* منطقة الرسائل */
+.chat-messages {
     flex-grow: 1;
-    padding: calc(var(--spacing-unit) * 1.5); /* 12px */
+    padding: 18px 16px 10px 16px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-unit); /* 8px */
-    background-color: #fdfdfd; /* Slightly off-white for message area */
+    gap: 10px;
+    background: #fafdff;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-light) #fafdff;
 }
+.chat-messages::-webkit-scrollbar {
+    width: 7px;
+    background: #fafdff;
+}
+.chat-messages::-webkit-scrollbar-thumb {
+    background: var(--primary-light);
+    border-radius: 8px;
+}
+
+/* فقاعات الرسائل */
 .message {
-    padding: calc(var(--spacing-unit) * 1) calc(var(--spacing-unit) * 1.5); /* 8px 12px */
-    border-radius: var(--border-radius-lg);
-    max-width: 80%;
-    font-size: 0.9rem; /* ~14.4px */
-    line-height: 1.5;
+    padding: 10px 18px;
+    border-radius: 18px 18px 6px 18px;
+    max-width: 85%;
+    font-size: 1.02rem;
+    line-height: 1.7;
     word-wrap: break-word;
+    box-shadow: 0 1px 6px rgba(52,152,219,0.07);
+    position: relative;
+    animation: fadeInMsg 0.35s;
+}
+@keyframes fadeInMsg {
+    from { opacity: 0; transform: translateY(10px);}
+    to { opacity: 1; transform: translateY(0);}
 }
 .message.user {
-    background-color: var(--primary-color);
+    background: linear-gradient(90deg, var(--primary-color) 80%, var(--primary-dark) 100%);
     color: var(--surface-bg);
-    align-self: flex-start; /* RTL: user on left */
-    border-bottom-left-radius: var(--border-radius-sm); /* Bubble tail effect */
+    align-self: flex-start;
+    border-bottom-left-radius: 2.5px;
+    box-shadow: 0 2px 8px rgba(52,152,219,0.10);
 }
 .message.bot {
-    background-color: var(--light-bg);
-    color: var(--text-color);
-    align-self: flex-end; /* RTL: bot on right */
-    border-bottom-right-radius: var(--border-radius-sm);
+    background: linear-gradient(90deg, #f5fafd 80%, #eaf6fb 100%);
+    color: var(--primary-dark);
+    align-self: flex-end;
+    border-bottom-right-radius: 2.5px;
+    border: 1px solid var(--primary-light);
 }
 .message.loading-dots {
     display: flex;
     gap: 3px;
-    padding: calc(var(--spacing-unit) * 1.5);
+    padding: 14px 18px;
+    background: none;
+    box-shadow: none;
 }
 .message.loading-dots span {
     width: 8px;
     height: 8px;
-    background-color: var(--text-muted);
+    background-color: var(--primary-light);
     border-radius: 50%;
     animation: bounceDot 1.2s infinite ease-in-out;
 }
@@ -932,45 +976,51 @@ ul, ol {
   40% { transform: scale(1.0); }
 }
 
+/* منطقة الإدخال */
 .chat-input-area {
     display: flex;
-    padding: calc(var(--spacing-unit) * 1.25); /* 10px */
-    border-top: 1px solid var(--border-color);
-    gap: var(--spacing-unit); /* 8px */
+    padding: 13px 12px;
+    border-top: 1.5px solid var(--primary-light);
+    gap: 8px;
     align-items: center;
+    background: #fafdff;
 }
 #chatInputControl {
     flex-grow: 1;
-    padding: calc(var(--spacing-unit) * 1.25); /* 10px */
-    border: 1px solid var(--border-color);
-    border-radius: 20px; /* Rounded input */
-    font-size: 0.9rem;
-    resize: none; /* Prevent manual resize if it's textarea */
-    font-family: var(--font-family-base);
+    padding: 12px 18px;
+    border: 1.5px solid var(--primary-light);
+    border-radius: 22px;
+    font-size: 1.03rem;
+    background: #fff;
+    color: var(--primary-dark);
+    transition: border-color 0.18s, box-shadow 0.18s;
+    box-shadow: 0 1px 4px rgba(52,152,219,0.06);
 }
 #chatInputControl:focus {
     outline: none;
-    border-color: var(--primary-color);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(231,76,60,0.10);
 }
 #sendChatMessageBtn, #voiceRecognitionBtn {
-    width: 44px;
-    height: 44px;
+    width: 46px;
+    height: 46px;
     border-radius: 50%;
     border: none;
-    background-color: var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-color) 60%, var(--accent-color) 100%);
     color: var(--surface-bg);
-    font-size: 1.2rem; /* ~19px */
+    font-size: 1.3rem;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color var(--transition-speed) ease;
+    transition: background 0.18s, box-shadow 0.18s;
+    box-shadow: 0 2px 8px rgba(52,152,219,0.10);
 }
 #sendChatMessageBtn:hover, #voiceRecognitionBtn:hover {
-    background-color: var(--primary-dark);
+    background: linear-gradient(135deg, var(--primary-dark) 60%, var(--accent-dark) 100%);
 }
 #voiceRecognitionBtn.listening {
-    background-color: var(--accent-color);
+    background: linear-gradient(135deg, var(--accent-color) 60%, var(--primary-color) 100%);
     animation: pulseRecord 1.5s infinite;
 }
 @keyframes pulseRecord {

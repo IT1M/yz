@@ -107,11 +107,11 @@ document.addEventListener('DOMContentLoaded', function() {
     updateUserMenuDisplay();
     addEventListeners();
     checkUserSession();
-    // فتح نافذة الدعم الفني دائمًا عند التحميل
+    // لا تفتح نافذة الدعم الفني تلقائياً عند التحميل
     if (DOMElements.chatWindowContainer) {
-        DOMElements.chatWindowContainer.classList.add('show');
-        appState.chat.isWindowOpen = true;
-        DOMElements.chatToggleButton?.setAttribute('aria-expanded', 'true');
+        DOMElements.chatWindowContainer.classList.remove('show');
+        appState.chat.isWindowOpen = false;
+        DOMElements.chatToggleButton?.setAttribute('aria-expanded', 'false');
     }
 });
 
