@@ -1,115 +1,254 @@
 <!DOCTYPE html>
+
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <title>تسجيل دخول</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500&display=swap" rel="stylesheet" />
-  <style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/supabase/2.39.0/umd/supabase.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
     body {
-      font-family: 'Cairo', sans-serif;
-      background: linear-gradient(to bottom right, #f1f5f9, #dbeafe);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
+        font-family: 'Arial', sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
-    .box {
-      background: white;
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 400px;
+    
+    .container {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        width: 100%;
+        max-width: 400px;
+        direction: rtl;
     }
-    h2 {
-      margin-bottom: 20px;
-      color: #111827;
-      text-align: center;
+    
+    .header {
+        text-align: center;
+        margin-bottom: 2rem;
     }
-    input {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-      box-sizing: border-box;
+    
+    .header h1 {
+        color: #333;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
     }
-    button {
-      width: 100%;
-      padding: 12px;
-      background-color: #0d9488;
-      color: white;
-      font-size: 16px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
+    
+    .header p {
+        color: #666;
+        font-size: 0.9rem;
     }
-    button:hover {
-      background-color: #0f766e;
+    
+    .form-group {
+        margin-bottom: 1.5rem;
     }
-    .text {
-      text-align: center;
-      margin-top: 10px;
-      font-size: 14px;
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #333;
+        font-weight: bold;
     }
-    .text a {
-      color: #0d9488;
-      text-decoration: none;
-      font-weight: bold;
+    
+    .form-group input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+        direction: ltr;
+        text-align: right;
     }
-    #status {
-      text-align: center;
-      margin-top: 10px;
-      font-size: 15px;
+    
+    .form-group input:focus {
+        outline: none;
+        border-color: #667eea;
     }
-  </style>
+    
+    .btn {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+    }
+    
+    .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .links {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+    
+    .links a {
+        color: #667eea;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+    
+    .links a:hover {
+        text-decoration: underline;
+    }
+    
+    .error {
+        background: #fee;
+        color: #c33;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        display: none;
+    }
+    
+    .success {
+        background: #efe;
+        color: #3c3;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        display: none;
+    }
+</style>
+```
+
 </head>
 <body>
-  <div class="box">
-    <h2>تسجيل دخول</h2>
-    <input type="email" id="email" placeholder="الإيميل" />
-    <input type="password" id="password" placeholder="كلمة المرور" />
-    <button onclick="login()">دخول</button>
-    <p id="status"></p>
-    <div class="text">
-      ما عندك حساب؟ <a href="page/signup/signup.html">سجّل الآن</a>
+    <div class="container">
+        <div class="header">
+            <h1>تسجيل الدخول</h1>
+            <p>أدخل بياناتك للوصول إلى حسابك</p>
+        </div>
+
+```
+    <div id="error-message" class="error"></div>
+    <div id="success-message" class="success"></div>
+    
+    <form id="login-form">
+        <div class="form-group">
+            <label for="email">البريد الإلكتروني</label>
+            <input type="email" id="email" required placeholder="example@domain.com">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">كلمة المرور</label>
+            <input type="password" id="password" required placeholder="********">
+        </div>
+        
+        <button type="submit" class="btn" id="login-btn">تسجيل الدخول</button>
+    </form>
+    
+    <div class="links">
+        <a href="register.html">ليس لديك حساب؟ سجل الآن</a><br><br>
+        <a href="auth.html">التحقق من المصادقة</a>
     </div>
-  </div>
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <script>
-    const SUPABASE_URL = "https://qovspvegmjvslzizibxr.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFvdnNwdmVnbWp2c2x6aXppYnhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyMTU0NjcsImV4cCI6MjA2NDc5MTQ2N30.RNvl_GWX8fWNnGi2Nkq4HPVTYFbhKamfygdvtG55bOY";
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    async function login() {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const status = document.getElementById("status");
-
-      if (!email || !password) {
-        status.style.color = "red";
-        status.textContent = "الرجاء تعبئة الإيميل وكلمة المرور.";
-        return;
-      }
-
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        status.style.color = "red";
-        status.textContent = "فشل تسجيل الدخول: " + error.message;
-      } else {
-        status.style.color = "green";
-        status.textContent = "تم تسجيل الدخول بنجاح!";
-        // مثلاً انقله لصفحة الحساب
-        // window.location.href = "dashboard.html";
-      }
+<script>
+    // إعداد Supabase
+    const supabaseUrl = 'https://qovspvegmjvslzizibxr.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFvdnNwdmVnbWp2c2x6aXppYnhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyMTU0NjcsImV4cCI6MjA2NDc5MTQ2N30.RNvl_GWX8fWNnGi2Nkq4HPVTYFbhKamfygdvtG55bOY';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    
+    const loginForm = document.getElementById('login-form');
+    const loginBtn = document.getElementById('login-btn');
+    const errorMessage = document.getElementById('error-message');
+    const successMessage = document.getElementById('success-message');
+    
+    // إخفاء الرسائل
+    function hideMessages() {
+        errorMessage.style.display = 'none';
+        successMessage.style.display = 'none';
     }
-  </script>
+    
+    // عرض رسالة خطأ
+    function showError(message) {
+        hideMessages();
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+    }
+    
+    // عرض رسالة نجاح
+    function showSuccess(message) {
+        hideMessages();
+        successMessage.textContent = message;
+        successMessage.style.display = 'block';
+    }
+    
+    // معالج تسجيل الدخول
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        
+        loginBtn.disabled = true;
+        loginBtn.textContent = 'جاري تسجيل الدخول...';
+        
+        try {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+            
+            if (error) {
+                throw error;
+            }
+            
+            showSuccess('تم تسجيل الدخول بنجاح!');
+            
+            // توجيه المستخدم إلى صفحة أخرى بعد النجاح
+            setTimeout(() => {
+                window.location.href = 'auth.html';
+            }, 1500);
+            
+        } catch (error) {
+            let errorMsg = 'حدث خطأ في تسجيل الدخول';
+            
+            if (error.message.includes('Invalid login credentials')) {
+                errorMsg = 'بيانات الدخول غير صحيحة';
+            } else if (error.message.includes('Email not confirmed')) {
+                errorMsg = 'يرجى تأكيد بريدك الإلكتروني أولاً';
+            } else if (error.message.includes('Too many requests')) {
+                errorMsg = 'تم تجاوز عدد المحاولات المسموحة، حاول مرة أخرى لاحقاً';
+            }
+            
+            showError(errorMsg);
+        } finally {
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'تسجيل الدخول';
+        }
+    });
+    
+    // التحقق من المستخدم المسجل بالفعل
+    supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+            console.log('المستخدم مسجل دخول:', session.user);
+        }
+    });
+</script>
 </body>
 </html>
