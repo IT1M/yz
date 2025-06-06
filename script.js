@@ -1,802 +1,790 @@
-       // --- Global State & Mock Data ---
-        let appState = {
-            currentUser: null, // { id, name, email, isAdmin }
-            jobs: [],
-            applications: [],
-            users: [],
-            chat: {
-                mode: 'text', // 'text' or 'voice'
-                isVoiceListening: false,
-                messages: [],
-                aiIsTyping: false
-            },
-            admin: {
-                activeTab: 'adminJobsContent',
-                editingJobId: null
-            },
-            filters: {
-                departments: ["تطوير البرمجيات", "التسويق", "المبيعات", "الموارد البشرية", "المالية", "الهندسة الطبية", "خدمة العملاء"],
-                locations: ["الرياض", "جدة", "الدمام", "عن بُعد", "الخبر"],
-                types: ["دوام كامل", "دوام جزئي", "تدريب", "مؤقت", "عقد محدد"]
-            }
-        };
+// --- Global Application State & Configuration ---
+const appState = {
+    currentUser: null, // { id, name, email, isAdmin, phone, dateJoined, type, passwordHash (for mock only) }
+    jobs: [],
+    applications: [], // To store submitted applications (both specific and general)
+    users: [], // To store registered users
+    chat: {
+        mode: 'text', // 'text' or 'voice'
+        isVoiceListening: false,
+        messages: [], // { sender: 'user'/'bot', text: 'message', timestamp: ... }
+        aiIsTyping: false,
+        isWindowOpen: false
+    },
+    ui: {
+        activeModalId: null,
+        isUserMenuOpen: false,
+        isMobileNavOpen: false,
+        alertTimeout: null
+    },
+    filters: { // These will be populated from unique values in jobs data
+        departments: [],
+        locations: [],
+        types: []
+    }
+};
 
-        // Gemini API Key - تنبيه: لا تضع مفتاح حقيقي هنا في الإنتاج!
-        // استخدم هذا المفتاح للمساعد الذكي. لابد من استبداله أو حمايته في بيئة الإنتاج.
-        const GEMINI_API_KEY_FOR_CHATBOT = "AIzaSyCV3Kb2rHMQoyAiYkrAFA82UlcGbYAAC0M"; // استبدل بمفتاحك إذا أردت اختبار حقيقي
+// --- Gemini API Configuration ---
+// IMPORTANT: For local development with a real key, ensure `js/env.local.js` exists and is in .gitignore
+// Example js/env.local.js: window.DEV_GEMINI_API_KEY = "AIzaSy_YOUR_REAL_KEY";
+const GEMINI_API_KEY_FOR_CHATBOT = typeof window.DEV_GEMINI_API_KEY !== 'undefined'
+                                  ? window.DEV_GEMINI_API_KEY
+                                  : "YOUR_GEMINI_API_KEY_PLACEHOLDER"; // Fallback placeholder
 
-        let speechRecognitionInstance = null;
+if (GEMINI_API_KEY_FOR_CHATBOT === "YOUR_GEMINI_API_KEY_PLACEHOLDER" || !GEMINI_API_KEY_FOR_CHATBOT) {
+    console.warn("Gemini API Key for Chatbot is not configured. Chat AI will not make real API calls.");
+}
 
-        // --- Initialization ---
-        document.addEventListener('DOMContentLoaded', function() {
-            loadInitialData();
-            renderJobsGrid();
-            populateFilterDropdowns();
-            initializeSpeechRecognitionAPI();
-            updateUserMenuDisplay();
-            setupAdminTabs();
-            
-            // Add smooth scroll to nav links
-            document.querySelectorAll('.nav-menu a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('href');
-                    const targetElement = document.querySelector(targetId);
-                    if (targetElement) {
-                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                });
-            });
+let speechRecognitionInstance = null;
 
-            // Header scroll effect
-            const header = document.querySelector('.header');
-            window.addEventListener('scroll', function() {
-                if (window.scrollY > 50) { // تغيير طفيف في الارتفاع
-                    header.style.backgroundColor = 'rgba(31, 58, 85, 0.97)'; // أكثر شفافية قليلاً
-                    header.style.boxShadow = '0 6px 15px rgba(0,0,0,0.2)';
-                } else {
-                    header.style.background = 'linear-gradient(135deg, #1F3A55, #3498db)';
-                    header.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-                }
-            });
-        });
+// --- DOM Elements Cache ---
+const DOMElements = {};
 
-        function loadInitialData() {
-            // Sample Jobs Data
-            appState.jobs = [
-                { id: 'J001', title: 'مطور واجهة أمامية أول (Senior Frontend Developer)', department: 'تطوير البرمجيات', location: 'الرياض', type: 'دوام كامل', datePosted: '2024-07-15', description: 'نبحث عن مطور واجهة أمامية محترف يتمتع بخبرة واسعة في بناء تطبيقات ويب تفاعلية باستخدام أحدث التقنيات. ستكون مسؤولاً عن قيادة تطوير الواجهات الأمامية، وضمان جودة الكود، والتعاون مع فرق التصميم والـ backend.', responsibilities: ['قيادة تصميم وتنفيذ واجهات مستخدم متقدمة.', 'تحسين أداء وسرعة تحميل التطبيقات.', 'كتابة كود نظيف، قابل للصيانة، وموثق بشكل جيد.', 'مراجعة كود الزملاء وتقديم التوجيه.', 'البقاء على اطلاع بأحدث اتجاهات وتقنيات تطوير الواجهات الأمامية.'], qualifications: ['خبرة لا تقل عن 5 سنوات في تطوير الواجهات الأمامية.', 'إتقان HTML5, CSS3, JavaScript (ES6+).', 'خبرة عميقة في أحد أطر العمل الحديثة مثل React, Angular, أو Vue.js (نفضل React).', 'فهم جيد لـ RESTful APIs والتفاعل معها.', 'خبرة في أدوات بناء واختبار الواجهات الأمامية.'], skills: ['React', 'JavaScript', 'TypeScript', 'HTML5', 'CSS3/SASS', 'Redux/Context API', 'Git', 'Agile', 'Problem Solving'] },
-                { id: 'J002', title: 'أخصائي تسويق رقمي', department: 'التسويق', location: 'جدة', type: 'دوام كامل', datePosted: '2024-07-20', description: 'مطلوب أخصائي تسويق رقمي مبدع لإدارة وتطوير استراتيجيات التسويق الرقمي للشركة، بما في ذلك إدارة الحملات الإعلانية، تحسين محركات البحث (SEO)، والتسويق عبر وسائل التواصل الاجتماعي.', responsibilities: ['تخطيط وتنفيذ جميع حملات التسويق الرقمي.', 'إدارة ميزانية التسويق الرقمي وتحقيق أفضل عائد على الاستثمار.', 'تحليل أداء الحملات وتقديم تقارير دورية.', 'تحسين ترتيب الموقع في محركات البحث (SEO).', 'إدارة وتنمية حسابات الشركة على وسائل التواصل الاجتماعي.'], qualifications: ['شهادة جامعية في التسويق، إدارة الأعمال، أو مجال ذي صلة.', 'خبرة عملية لا تقل عن 3 سنوات في التسويق الرقمي.', 'معرفة قوية بـ Google Ads, Google Analytics, SEO/SEM, Social Media Marketing.', 'قدرة على تحليل البيانات واستخلاص رؤى قابلة للتنفيذ.'], skills: ['Digital Marketing', 'SEO', 'SEM', 'Social Media', 'Google Analytics', 'Content Creation', 'Email Marketing'] },
-                { id: 'J003', title: 'مهندس أجهزة طبية مبتدئ', department: 'الهندسة الطبية', location: 'الدمام', type: 'تدريب', datePosted: '2024-07-25', description: 'فرصة تدريب للخريجين الجدد في مجال الهندسة الطبية للمساهمة في تصميم واختبار أجهزة طبية مبتكرة تحت إشراف فريق من المهندسين الخبراء.', responsibilities: ['المساعدة في تصميم وتطوير نماذج أولية للأجهزة الطبية.', 'إجراء الاختبارات والفحوصات على الأجهزة.', 'توثيق نتائج الاختبارات والمساهمة في إعداد التقارير الفنية.', 'الالتزام بمعايير الجودة والسلامة.'], qualifications: ['حديث التخرج بدرجة البكالوريوس في الهندسة الطبية أو هندسة الإلكترونيات/الميكانيكا.', 'شغف بمجال الأجهزة الطبية والابتكار.', 'قدرة على التعلم السريع والعمل ضمن فريق.', 'مهارات تواصل جيدة باللغتين العربية والإنجليزية.'], skills: ['CAD (SolidWorks/AutoCAD)', 'Microcontrollers (Arduino/Raspberry Pi - Plus)', 'Problem Solving', 'Teamwork', 'Technical Writing'] },
-                { id: 'J004', title: 'مسؤول موارد بشرية', department: 'الموارد البشرية', location: 'الرياض', type: 'دوام جزئي', datePosted: '2024-07-18', description: 'نبحث عن مسؤول موارد بشرية بدوام جزئي للمساعدة في عمليات التوظيف، وإدارة شؤون الموظفين، والمساهمة في تطوير بيئة عمل إيجابية.', responsibilities: ['المساعدة في عملية التوظيف من فرز السير الذاتية إلى جدولة المقابلات.', 'إعداد عقود العمل والوثائق المتعلقة بالموظفين.', 'الرد على استفسارات الموظفين.', 'المساهمة في تنظيم فعاليات الشركة.'], qualifications: ['خبرة سنة على الأقل في مجال الموارد البشرية أو مجال مشابه.', 'معرفة جيدة بقانون العمل السعودي.', 'مهارات تنظيمية وتواصل ممتازة.', 'إتقان استخدام برامج Microsoft Office.'], skills: ['HR Administration', 'Recruitment Support', 'Communication Skills', 'Organizational Skills', 'Saudi Labor Law'] }
-            ];
-            // Sample Users Data
-            appState.users = [
-                { id: 'U001', name: 'المدير العام', email: 'admin@login.com', phone: '0500000000', dateJoined: '2023-01-01', type: 'مدير', passwordHash: 'admin13579' /* For demo only, never store plain passwords */ },
-                { id: 'U002', name: 'أحمد الموظف', email: 'ahmad@mays.com', phone: '0511111111', dateJoined: '2023-05-15', type: 'موظف', passwordHash: 'password123' }
-            ];
-            // Sample Applications Data
-            appState.applications = [
-                { id: 'A001', applicantName: 'سارة خالد', applicantEmail: 'sara.k@email.com', jobId: 'J001', jobTitle: appState.jobs.find(j=>j.id==='J001')?.title, dateApplied: '2024-07-18', status: 'قيد المراجعة', resumeFile: 'sara_cv.pdf', experience: 4 },
-                { id: 'A002', applicantName: 'محمد عبدالله', applicantEmail: 'mo.abd@email.com', jobId: 'J002', jobTitle: appState.jobs.find(j=>j.id==='J002')?.title, dateApplied: '2024-07-22', status: 'تمت المقابلة', resumeFile: 'mo_cv.docx', experience: 2 }
-            ];
-        }
+function cacheDOMElements() {
+    // Header & Navigation
+    DOMElements.header = document.querySelector('.header');
+    DOMElements.userMenuButton = document.getElementById('userMenuButton');
+    DOMElements.userDropdownMenu = document.getElementById('userDropdownMenu');
+    DOMElements.mobileNavToggle = document.getElementById('mobileNavToggle');
+    DOMElements.mainNav = document.querySelector('.main-nav');
+    DOMElements.navMenuLinks = document.querySelectorAll('.nav-menu a');
 
-        // --- UI Rendering & Updates ---
-        function renderJobsGrid() {
-            const jobsGridContainer = document.getElementById('jobsGridContainer');
-            const noJobsMessage = document.getElementById('noJobsMessage');
-            jobsGridContainer.innerHTML = ''; // Clear previous jobs
+    // Job Listing & Filters
+    DOMElements.jobsGridContainer = document.getElementById('jobsGridContainer');
+    DOMElements.noJobsMessage = document.getElementById('noJobsMessage');
+    DOMElements.departmentFilter = document.getElementById('departmentFilter');
+    DOMElements.locationFilter = document.getElementById('locationFilter');
+    DOMElements.typeFilter = document.getElementById('typeFilter');
+    DOMElements.showGeneralApplicationModalBtn = document.getElementById('showGeneralApplicationModalBtn');
 
-            const departmentFilter = document.getElementById('departmentFilter').value;
-            const locationFilter = document.getElementById('locationFilter').value;
-            const typeFilter = document.getElementById('typeFilter').value;
+    // Chat
+    DOMElements.chatToggleButton = document.getElementById('chatToggleButton');
+    DOMElements.chatWindowContainer = document.getElementById('chatWindowContainer');
+    DOMElements.closeChatButton = document.getElementById('closeChatButton');
+    DOMElements.chatModeTextBtn = document.getElementById('chatModeTextBtn');
+    DOMElements.chatModeVoiceBtn = document.getElementById('chatModeVoiceBtn');
+    DOMElements.chatMessagesContainer = document.getElementById('chatMessagesContainer');
+    DOMElements.chatInputControl = document.getElementById('chatInputControl');
+    DOMElements.sendChatMessageBtn = document.getElementById('sendChatMessageBtn');
+    DOMElements.voiceRecognitionBtn = document.getElementById('voiceRecognitionBtn');
 
-            const filteredJobs = appState.jobs.filter(job =>
-                (!departmentFilter || job.department === departmentFilter) &&
-                (!locationFilter || job.location === locationFilter) &&
-                (!typeFilter || job.type === typeFilter)
-            );
+    // Modals
+    DOMElements.loginModalContainer = document.getElementById('loginModalContainer');
+    DOMElements.registerModalContainer = document.getElementById('registerModalContainer');
+    DOMElements.jobDetailsModalContainer = document.getElementById('jobDetailsModalContainer');
+    DOMElements.jobApplicationModalContainer = document.getElementById('jobApplicationModalContainer');
+    DOMElements.generalApplicationModalContainer = document.getElementById('generalApplicationModalContainer');
 
-            if (filteredJobs.length === 0) {
-                noJobsMessage.style.display = 'block';
-                return;
-            }
-            noJobsMessage.style.display = 'none';
+    // Modal Forms & Content Elements
+    DOMElements.loginFormElement = document.getElementById('loginFormElement');
+    DOMElements.registerFormElement = document.getElementById('registerFormElement');
+    DOMElements.jobDetailsModalTitle = document.getElementById('jobDetailsModalTitle');
+    DOMElements.jobDetailsModalContent = document.getElementById('jobDetailsModalContent');
+    DOMElements.jobApplicationModalTitleSpan = document.getElementById('jobApplicationModalTitleText')?.querySelector('span');
+    DOMElements.applicationJobIdInput = document.getElementById('applicationJobIdInput');
+    DOMElements.jobApplicationFormElement = document.getElementById('jobApplicationFormElement');
+    DOMElements.generalApplicationFormElement = document.getElementById('generalApplicationFormElement');
+    DOMElements.generalDesiredFieldSelect = document.getElementById('generalDesiredFieldSelect');
+    DOMElements.applyResumeFileInput = document.getElementById('applyResumeFileInput');
+    DOMElements.applyResumeFileError = document.getElementById('applyResumeFileError');
+    DOMElements.generalApplyResumeFileInput = document.getElementById('generalApplyResumeFileInput');
+    DOMElements.generalResumeFileError = document.getElementById('generalResumeFileError');
 
-            filteredJobs.forEach(job => {
-                const card = document.createElement('div');
-                card.className = 'job-card';
-                card.innerHTML = `
-                    <h3 class="job-title">${job.title}</h3>
-                    <div class="job-department">${job.department}</div>
-                    <div class="job-details">
-                        <span class="job-detail"><i class="fas fa-map-marker-alt"></i> ${job.location}</span>
-                        <span class="job-detail"><i class="fas fa-briefcase"></i> ${job.type}</span>
-                    </div>
-                    <p class="job-description-snippet">${job.description.substring(0, 120)}...</p>
-                    <div class="job-actions">
-                        <button class="details-btn" onclick="openJobDetailsModal('${job.id}')">عرض التفاصيل</button>
-                        <button class="apply-btn" onclick="openJobApplicationModal('${job.id}')">قدم الآن</button>
-                    </div>
-                `;
-                jobsGridContainer.appendChild(card);
-            });
-        }
+    // Global Alert Container
+    DOMElements.globalAlertContainer = document.getElementById('globalAlertContainer');
+    if (!DOMElements.globalAlertContainer) { // Create if not in HTML
+        DOMElements.globalAlertContainer = document.createElement('div');
+        DOMElements.globalAlertContainer.id = 'globalAlertContainer';
+        document.body.appendChild(DOMElements.globalAlertContainer);
+    }
+}
 
-        function populateFilterDropdowns() {
-            const depFilter = document.getElementById('departmentFilter');
-            const locFilter = document.getElementById('locationFilter');
-            const typeFilter = document.getElementById('typeFilter');
+// --- Application Initialization ---
+document.addEventListener('DOMContentLoaded', function() {
+    cacheDOMElements();
+    loadInitialMockData();
+    populateJobFiltersFromData();
+    renderJobsGrid();
+    initializeSpeechRecognitionAPI();
+    updateUserMenuDisplay();
+    addEventListeners();
+    checkUserSession();
+});
 
-            appState.filters.departments.forEach(dep => depFilter.add(new Option(dep, dep)));
-            appState.filters.locations.forEach(loc => locFilter.add(new Option(loc, loc)));
-            appState.filters.types.forEach(type => typeFilter.add(new Option(type, type)));
+function addEventListeners() {
+    window.addEventListener('scroll', handleHeaderScroll);
+    DOMElements.userMenuButton?.addEventListener('click', () => toggleUserMenu());
+    DOMElements.mobileNavToggle?.addEventListener('click', () => toggleMobileNav());
 
-            const generalDesiredField = document.getElementById('generalDesiredFieldSelect');
-            appState.filters.departments.forEach(dep => generalDesiredField.add(new Option(dep, dep)));
-            generalDesiredField.add(new Option('أخرى', 'أخرى'));
+    document.querySelectorAll('.close-modal-btn').forEach(btn => {
+        btn.addEventListener('click', () => closeModal(btn.dataset.modalId));
+    });
 
+    document.getElementById('switchToRegisterLink')?.addEventListener('click', (e) => { e.preventDefault(); showRegisterModal(); });
+    document.getElementById('switchToLoginLink')?.addEventListener('click', (e) => { e.preventDefault(); showLoginModal(); });
 
-            const adminJobDepartment = document.getElementById('adminJobDepartmentSelect');
-            const adminJobLocation = document.getElementById('adminJobLocationSelect');
-            const adminJobType = document.getElementById('adminJobTypeSelect');
+    DOMElements.chatToggleButton?.addEventListener('click', () => toggleChatWindow());
+    DOMElements.closeChatButton?.addEventListener('click', () => toggleChatWindow(false));
+    DOMElements.chatModeTextBtn?.addEventListener('click', () => selectChatMode('text'));
+    DOMElements.chatModeVoiceBtn?.addEventListener('click', () => selectChatMode('voice'));
+    DOMElements.sendChatMessageBtn?.addEventListener('click', sendUserChatMessage);
+    DOMElements.chatInputControl?.addEventListener('keypress', handleChatInputKeyPress);
+    DOMElements.voiceRecognitionBtn?.addEventListener('click', toggleVoiceRecognition);
 
-            appState.filters.departments.forEach(dep => adminJobDepartment.add(new Option(dep, dep)));
-            appState.filters.locations.forEach(loc => adminJobLocation.add(new Option(loc, loc)));
-            appState.filters.types.forEach(type => adminJobType.add(new Option(type, type)));
-        }
+    DOMElements.departmentFilter?.addEventListener('change', renderJobsGrid);
+    DOMElements.locationFilter?.addEventListener('change', renderJobsGrid);
+    DOMElements.typeFilter?.addEventListener('change', renderJobsGrid);
+    DOMElements.showGeneralApplicationModalBtn?.addEventListener('click', openGeneralApplicationModal);
 
-        function filterJobsDisplay() { // Renamed from filterJobs to avoid conflict
-            renderJobsGrid();
-        }
-        
-        function updateUserMenuDisplay() {
-            const dropdown = document.getElementById('userDropdown');
-            const userIcon = document.querySelector('.user-icon');
+    DOMElements.loginFormElement?.addEventListener('submit', handleUserLogin);
+    DOMElements.registerFormElement?.addEventListener('submit', handleUserRegister);
+    DOMElements.jobApplicationFormElement?.addEventListener('submit', handleSpecificJobApplication);
+    DOMElements.generalApplicationFormElement?.addEventListener('submit', handleGeneralCvSubmission);
 
-            if (appState.currentUser) {
-                userIcon.classList.remove('fa-user-circle'); // Remove default
-                userIcon.classList.add('fa-user-check'); // Icon for logged-in user
-                userIcon.style.color = '#2ecc71'; // Green color for logged in
-
-                dropdown.innerHTML = `
-                    <div style="padding: 1rem; border-bottom: 1px solid #eee; text-align: center;">
-                        <strong>${appState.currentUser.name}</strong><br>
-                        <small>${appState.currentUser.email}</small>
-                    </div>
-                    ${appState.currentUser.isAdmin ? '<a href="#" onclick="toggleAdminDashboard()">لوحة التحكم</a>' : ''}
-                    <a href="#" onclick="userLogout()">تسجيل الخروج</a>
-                `;
-            } else {
-                userIcon.classList.add('fa-user-circle');
-                userIcon.classList.remove('fa-user-check');
-                userIcon.style.color = 'white'; // Default color
-
-                dropdown.innerHTML = `
-                    <a href="#" onclick="showLoginModal()">تسجيل الدخول</a>
-                    <a href="#" onclick="showRegisterModal()">إنشاء حساب جديد</a>
-                `;
-            }
-        }
+    DOMElements.applyResumeFileInput?.addEventListener('change', () => validateResumeFile(DOMElements.applyResumeFileInput, DOMElements.applyResumeFileError.id));
+    DOMElements.generalApplyResumeFileInput?.addEventListener('change', () => validateResumeFile(DOMElements.generalApplyResumeFileInput, DOMElements.generalResumeFileError.id));
 
 
-        // --- Modal Handling ---
-        let activeModalId = null;
-        function openModal(modalId) {
-            closeActiveModal(); // Close any other open modal first
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.classList.add('show');
-                activeModalId = modalId;
-                document.body.style.overflow = 'hidden'; // Prevent background scroll
-            }
-        }
+    window.addEventListener('click', handleOutsideClicks);
+    document.addEventListener('keydown', handleGlobalKeyDown);
 
-        function closeActiveModal() {
-            if (activeModalId) {
-                const modal = document.getElementById(activeModalId);
-                if (modal) {
-                    modal.classList.remove('show');
-                }
-                activeModalId = null;
-                document.body.style.overflow = 'auto'; // Restore scroll
-            }
-        }
-         // Close modal on escape key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === "Escape" && activeModalId) {
-                closeActiveModal();
+    DOMElements.navMenuLinks?.forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                if (appState.ui.isMobileNavOpen) toggleMobileNav(false);
+                DOMElements.navMenuLinks.forEach(link => link.classList.remove('active-link'));
+                this.classList.add('active-link');
             }
         });
-        // Close modal on overlay click
-        window.addEventListener('click', function(event) {
-            if (activeModalId && event.target.classList.contains('modal') && event.target.id === activeModalId) {
-                 closeActiveModal();
-            }
+    });
+}
+
+// --- UI Interaction & State Management ---
+function handleHeaderScroll() {
+    DOMElements.header?.classList.toggle('scrolled', window.scrollY > 50);
+}
+
+function toggleUserMenu(forceState) {
+    const isOpen = DOMElements.userDropdownMenu?.classList.toggle('show', forceState);
+    appState.ui.isUserMenuOpen = isOpen;
+    DOMElements.userMenuButton?.setAttribute('aria-expanded', isOpen.toString());
+}
+
+function toggleMobileNav(forceState) {
+    const isOpen = DOMElements.mainNav?.classList.toggle('mobile-active', forceState);
+    appState.ui.isMobileNavOpen = isOpen;
+    DOMElements.mobileNavToggle?.setAttribute('aria-expanded', isOpen.toString());
+    if (DOMElements.mobileNavToggle) {
+        DOMElements.mobileNavToggle.querySelector('i').className = isOpen ? 'fas fa-times' : 'fas fa-bars';
+    }
+}
+
+function handleOutsideClicks(event) {
+    if (appState.ui.isUserMenuOpen && DOMElements.userMenuButton && !DOMElements.userMenuButton.contains(event.target) && !DOMElements.userDropdownMenu.contains(event.target)) {
+        toggleUserMenu(false);
+    }
+    if (appState.ui.isMobileNavOpen && DOMElements.mobileNavToggle && !DOMElements.mobileNavToggle.contains(event.target) && !DOMElements.mainNav.contains(event.target)) {
+        toggleMobileNav(false);
+    }
+}
+
+function handleGlobalKeyDown(event) {
+    if (event.key === "Escape") {
+        if (appState.ui.activeModalId) {
+            closeModal(appState.ui.activeModalId);
+        } else if (appState.chat.isWindowOpen) {
+            toggleChatWindow(false);
+        } else if (appState.ui.isUserMenuOpen) {
+            toggleUserMenu(false);
+        } else if (appState.ui.isMobileNavOpen) {
+            toggleMobileNav(false);
+        }
+    }
+}
+
+// --- Mock Data & Initialization ---
+function loadInitialMockData() {
+    appState.jobs = [
+        { id: 'J001', title: 'مطور واجهة أمامية أول (Senior Frontend Developer)', department: 'تطوير البرمجيات', location: 'الرياض', type: 'دوام كامل', datePosted: '2024-07-28', description: 'نبحث عن مطور واجهة أمامية محترف يتمتع بخبرة واسعة في بناء تطبيقات ويب تفاعلية باستخدام أحدث التقنيات. ستكون مسؤولاً عن قيادة تطوير الواجهات الأمامية، وضمان جودة الكود، والتعاون مع فرق التصميم والـ backend.', responsibilities: ['قيادة تصميم وتنفيذ واجهات مستخدم متقدمة باستخدام React و TypeScript.', 'تحسين أداء وسرعة تحميل التطبيقات لضمان أفضل تجربة مستخدم.', 'كتابة كود نظيف، قابل للصيانة، وموثق بشكل جيد وفقًا لأفضل الممارسات.', 'مراجعة كود الزملاء وتقديم التوجيه والإرشاد الفني.', 'البقاء على اطلاع دائم بأحدث اتجاهات وتقنيات تطوير الواجهات الأمامية.'], qualifications: ['خبرة لا تقل عن 5 سنوات في تطوير الواجهات الأمامية.', 'إتقان HTML5, CSS3, JavaScript (ES6+), و TypeScript.', 'خبرة عميقة ومثبتة في React (Hooks, Context API, Redux/Zustand).', 'فهم جيد لـ RESTful APIs وكيفية التفاعل معها بكفاءة.', 'خبرة في أدوات بناء (Webpack/Vite) واختبار الواجهات الأمامية (Jest, React Testing Library).', 'قدرة على العمل بشكل مستقل وضمن فريق.'], skills: ['React', 'TypeScript', 'JavaScript', 'HTML5', 'CSS3/SASS', 'Redux', 'Jest', 'Git', 'Agile Development', 'Problem Solving', 'Leadership'] },
+        { id: 'J002', title: 'أخصائي تسويق منتجات طبية', department: 'التسويق', location: 'جدة', type: 'دوام كامل', datePosted: '2024-07-25', description: 'نسعى لتوظيف أخصائي تسويق منتجات طبية مبدع لإدارة وتطوير استراتيجيات التسويق لمنتجاتنا الطبية المبتكرة، وزيادة الوعي بالعلامة التجارية في السوق السعودي.', responsibilities: ['تطوير وتنفيذ خطط التسويق للمنتجات الطبية الجديدة والحالية.', 'إجراء أبحاث السوق وتحليل المنافسين لتحديد الفرص والتحديات.', 'إنشاء محتوى تسويقي جذاب (كتيبات، عروض تقديمية، محتوى رقمي).', 'تنظيم والمشاركة في الفعاليات والمعارض الطبية.', 'بناء علاقات قوية مع قادة الرأي في المجال الطبي.'], qualifications: ['شهادة جامعية في التسويق، الصيدلة، أو مجال طبي ذي صلة.', 'خبرة عملية لا تقل عن 3 سنوات في تسويق المنتجات الطبية أو الأدوية.', 'فهم عميق للسوق الطبي السعودي والمتطلبات التنظيمية.', 'مهارات تواصل وعرض ممتازة باللغتين العربية والإنجليزية.'], skills: ['Product Marketing', 'Medical Devices', 'Pharmaceutical Marketing', 'Market Research', 'Content Creation', 'Event Management', 'Communication Skills'] },
+        { id: 'J003', title: 'مهندس صيانة أجهزة طبية', department: 'الهندسة الطبية', location: 'الدمام', type: 'تدريب', datePosted: '2024-07-22', description: 'فرصة تدريب للخريجين الجدد في مجال الهندسة الطبية للمساهمة في تصميم واختبار أجهزة طبية مبتكرة تحت إشراف فريق من المهندسين الخبراء.', responsibilities: ['المساعدة في تصميم وتطوير نماذج أولية للأجهزة الطبية.', 'إجراء الاختبارات والفحوصات على الأجهزة.', 'توثيق نتائج الاختبارات والمساهمة في إعداد التقارير الفنية.', 'الالتزام بمعايير الجودة والسلامة.'], qualifications: ['حديث التخرج بدرجة البكالوريوس في الهندسة الطبية أو هندسة الإلكترونيات/الميكانيكا.', 'شغف بمجال الأجهزة الطبية والابتكار.', 'قدرة على التعلم السريع والعمل ضمن فريق.', 'مهارات تواصل جيدة باللغتين العربية والإنجليزية.'], skills: ['CAD (SolidWorks/AutoCAD)', 'Microcontrollers', 'Problem Solving', 'Teamwork', 'Technical Writing'] },
+        { id: 'J004', title: 'مدير حسابات عملاء (قطاع الأدوية)', department: 'المبيعات', location: 'عن بُعد', type: 'دوام كامل', datePosted: '2024-07-20', description: 'نبحث عن مدير حسابات ذو خبرة في قطاع الأدوية لإدارة وتنمية العلاقات مع العملاء الرئيسيين. العمل يتطلب زيارات ميدانية وتواصل عن بعد.', responsibilities: ['تحقيق أهداف المبيعات.', 'بناء علاقات مع العملاء.', 'تقديم عروض عن المنتجات.', 'متابعة السوق.'], qualifications: ['شهادة جامعية.', 'خبرة 4 سنوات في مبيعات الأدوية.', 'سجل مبيعات حافل.'], skills: ['Pharmaceutical Sales', 'Account Management', 'Negotiation'] }
+    ];
+    appState.users = [
+        { id: 'U001', name: 'المدير يزيد', email: 'admin@login.com', phone: '0501234567', dateJoined: '2023-01-01', type: 'مدير', passwordHash: 'admin13579', isAdmin: true },
+        { id: 'U002', name: 'سالم الموظف', email: 'salem@mays.com', phone: '0512223333', dateJoined: '2023-06-10', type: 'موظف', passwordHash: 'salem123', isAdmin: false }
+    ];
+    appState.applications = []; // Start empty
+    // Save to localStorage if you want persistence for mock data (optional)
+    // localStorage.setItem('yzMockJobs', JSON.stringify(appState.jobs));
+    // localStorage.setItem('yzMockUsers', JSON.stringify(appState.users));
+}
+
+function populateJobFiltersFromData() {
+    const departments = [...new Set(appState.jobs.map(job => job.department))];
+    const locations = [...new Set(appState.jobs.map(job => job.location))];
+    const types = [...new Set(appState.jobs.map(job => job.type))];
+
+    appState.filters.departments = departments;
+    appState.filters.locations = locations;
+    appState.filters.types = types;
+
+    populateSelectWithOptions(DOMElements.departmentFilter, departments, "جميع الأقسام");
+    populateSelectWithOptions(DOMElements.locationFilter, locations, "جميع المواقع");
+    populateSelectWithOptions(DOMElements.typeFilter, types, "جميع أنواع الدوام");
+    populateSelectWithOptions(DOMElements.generalDesiredFieldSelect, departments, "-- اختر المجال --");
+    DOMElements.generalDesiredFieldSelect?.add(new Option('أخرى', 'أخرى'));
+}
+
+function populateSelectWithOptions(selectElement, optionsArray, defaultOptionText = "") {
+    if (!selectElement) return;
+    // Clear existing options except the first one
+    while (selectElement.options.length > 1) {
+        selectElement.remove(1);
+    }
+    if (selectElement.options.length === 0 && defaultOptionText) { // Add default if not present
+        selectElement.add(new Option(defaultOptionText, ""));
+    } else if (selectElement.options.length > 0 && defaultOptionText) {
+        selectElement.options[0].text = defaultOptionText;
+        selectElement.options[0].value = "";
+    }
+
+    optionsArray.forEach(optValue => {
+        selectElement.add(new Option(optValue, optValue));
+    });
+}
+
+
+// --- UI Rendering & Updates ---
+function renderJobsGrid() {
+    if (!DOMElements.jobsGridContainer || !DOMElements.noJobsMessage) return;
+    DOMElements.jobsGridContainer.innerHTML = '';
+
+    const departmentFilter = DOMElements.departmentFilter.value;
+    const locationFilter = DOMElements.locationFilter.value;
+    const typeFilter = DOMElements.typeFilter.value;
+
+    const filteredJobs = appState.jobs.filter(job =>
+        (!departmentFilter || job.department === departmentFilter) &&
+        (!locationFilter || job.location === locationFilter) &&
+        (!typeFilter || job.type === typeFilter)
+    );
+
+    if (filteredJobs.length === 0) {
+        DOMElements.noJobsMessage.style.display = 'block';
+        return;
+    }
+    DOMElements.noJobsMessage.style.display = 'none';
+
+    filteredJobs.forEach(job => {
+        const card = document.createElement('div');
+        card.className = 'job-card';
+        card.innerHTML = `
+            <h3 class="job-title">${job.title}</h3>
+            <div class="job-department">${job.department}</div>
+            <div class="job-details">
+                <span class="job-detail"><i class="fas fa-map-marker-alt"></i> ${job.location}</span>
+                <span class="job-detail"><i class="fas fa-briefcase"></i> ${job.type}</span>
+            </div>
+            <p class="job-description-snippet">${job.description.substring(0, 120)}...</p>
+            <div class="job-actions">
+                <button class="details-btn" data-job-id="${job.id}" aria-label="عرض تفاصيل وظيفة ${job.title}">عرض التفاصيل</button>
+                <button class="apply-btn-in-card" data-job-id="${job.id}" aria-label="التقديم على وظيفة ${job.title}">قدم الآن</button>
+            </div>
+        `;
+        card.querySelector('.details-btn').addEventListener('click', () => openJobDetailsModal(job.id));
+        card.querySelector('.apply-btn-in-card').addEventListener('click', () => openJobApplicationModal(job.id));
+        DOMElements.jobsGridContainer.appendChild(card);
+    });
+}
+
+function updateUserMenuDisplay() {
+    if (!DOMElements.userDropdownMenu || !DOMElements.userMenuButton) return;
+    const userIcon = DOMElements.userMenuButton.querySelector('i');
+
+    if (appState.currentUser) {
+        userIcon.className = 'fas fa-user-check user-icon-loggedin';
+        DOMElements.userMenuButton.setAttribute('aria-label', `قائمة المستخدم: ${appState.currentUser.name}`);
+        DOMElements.userDropdownMenu.innerHTML = `
+            <div class="dropdown-menu-header">
+                <strong>${appState.currentUser.name}</strong>
+                <small>${appState.currentUser.email}</small>
+            </div>
+            ${appState.currentUser.isAdmin ? `<a href="#" id="adminDashboardLinkMenu" role="menuitem"><i class="fas fa-tachometer-alt"></i> لوحة التحكم</a>` : ''}
+            <a href="#" id="logoutMenuLinkInternal" role="menuitem"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a>
+        `;
+        document.getElementById('logoutMenuLinkInternal')?.addEventListener('click', (e) => {e.preventDefault(); userLogout();});
+        document.getElementById('adminDashboardLinkMenu')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleUserMenu(false); // Close dropdown
+            window.location.href = 'page/dashboard/dashboard.html';
         });
+    } else {
+        userIcon.className = 'fas fa-user-circle';
+        userIcon.style.color = ''; // Reset color
+        DOMElements.userMenuButton.setAttribute('aria-label', 'قائمة المستخدم');
+        DOMElements.userDropdownMenu.innerHTML = `
+            <a href="#" id="loginMenuLinkInternal" role="menuitem"><i class="fas fa-sign-in-alt"></i> تسجيل الدخول</a>
+            <a href="#" id="registerMenuLinkInternal" role="menuitem"><i class="fas fa-user-plus"></i> إنشاء حساب</a>
+        `;
+        document.getElementById('loginMenuLinkInternal')?.addEventListener('click', (e) => { e.preventDefault(); showLoginModal(); });
+        document.getElementById('registerMenuLinkInternal')?.addEventListener('click', (e) => { e.preventDefault(); showRegisterModal(); });
+    }
+}
 
+// --- Modal Handling ---
+function openModal(modalId) {
+    closeActiveModal(); // Close any other open modal
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'flex';
+        appState.ui.activeModalId = modalId;
+        document.body.style.overflow = 'hidden';
+        const firstFocusable = modal.querySelector('button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])');
+        firstFocusable?.focus();
+    }
+}
 
-        function showLoginModal() { openModal('loginModalContainer'); }
-        function showRegisterModal() { openModal('registerModalContainer'); }
-        function showRegisterModalFromLogin() { closeActiveModal(); setTimeout(showRegisterModal, 300); }
-        function showLoginModalFromRegister() { closeActiveModal(); setTimeout(showLoginModal, 300); }
+function closeModal(modalIdOrElement) {
+    const modalElement = typeof modalIdOrElement === 'string' ? document.getElementById(modalIdOrElement) : modalIdOrElement;
+    if (modalElement) {
+        modalElement.style.display = 'none';
+    }
+    if (appState.ui.activeModalId === modalElement?.id || !modalIdOrElement) {
+        appState.ui.activeModalId = null;
+        document.body.style.overflow = 'auto';
+    }
+}
 
+function showLoginModal() { openModal('loginModalContainer'); }
+function showRegisterModal() { openModal('registerModalContainer'); }
 
-        function openJobDetailsModal(jobId) {
-            const job = appState.jobs.find(j => j.id === jobId);
-            if (!job) return;
-            document.getElementById('jobDetailsModalTitle').textContent = job.title;
-            const contentDiv = document.getElementById('jobDetailsModalContent');
-            contentDiv.innerHTML = `
-                <p><strong>القسم:</strong> ${job.department}</p>
-                <p><strong>الموقع:</strong> ${job.location}</p>
-                <p><strong>نوع الدوام:</strong> ${job.type}</p>
-                <hr style="margin: 1rem 0;">
-                <h4>الوصف الوظيفي:</h4>
-                <p style="white-space: pre-wrap;">${job.description}</p>
-                <h4 style="margin-top:1rem;">المسؤوليات:</h4>
-                <ul style="padding-right: 20px;">${job.responsibilities.map(r => `<li>${r}</li>`).join('')}</ul>
-                <h4 style="margin-top:1rem;">المؤهلات:</h4>
-                <ul style="padding-right: 20px;">${job.qualifications.map(q => `<li>${q}</li>`).join('')}</ul>
-                <h4 style="margin-top:1rem;">المهارات المطلوبة:</h4>
-                <p>${job.skills.join(', ')}</p>
-                <div style="margin-top: 2rem; text-align: center;">
-                    <button class="cta-button" onclick="openJobApplicationModal('${job.id}'); closeActiveModal();">
-                        <i class="fas fa-paper-plane"></i> قدم على هذه الوظيفة
-                    </button>
-                </div>
-            `;
-            openModal('jobDetailsModalContainer');
-        }
+function openJobDetailsModal(jobId) {
+    const job = appState.jobs.find(j => j.id === jobId);
+    if (!job || !DOMElements.jobDetailsModalTitle || !DOMElements.jobDetailsModalContent) return;
+    DOMElements.jobDetailsModalTitle.textContent = job.title;
+    DOMElements.jobDetailsModalContent.innerHTML = `
+        <p><strong>القسم:</strong> ${job.department}</p>
+        <p><strong>الموقع:</strong> ${job.location}</p>
+        <p><strong>نوع الدوام:</strong> ${job.type}</p>
+        <hr style="margin: 1rem 0;">
+        <h4>الوصف الوظيفي:</h4>
+        <p style="white-space: pre-wrap;">${job.description}</p>
+        <h4 style="margin-top:1rem;">المسؤوليات:</h4>
+        <ul style="padding-right: 20px;">${(Array.isArray(job.responsibilities) ? job.responsibilities : [job.responsibilities]).map(r => `<li>${r}</li>`).join('')}</ul>
+        <h4 style="margin-top:1rem;">المؤهلات:</h4>
+        <ul style="padding-right: 20px;">${(Array.isArray(job.qualifications) ? job.qualifications : [job.qualifications]).map(q => `<li>${q}</li>`).join('')}</ul>
+        <h4 style="margin-top:1rem;">المهارات المطلوبة:</h4>
+        <p>${(Array.isArray(job.skills) ? job.skills.join(', ') : job.skills)}</p>
+        <div style="margin-top: 2rem; text-align: center;">
+            <button class="cta-button" onclick="openJobApplicationModal('${job.id}'); closeModal('jobDetailsModalContainer');">
+                <i class="fas fa-paper-plane"></i> قدم على هذه الوظيفة
+            </button>
+        </div>
+    `;
+    openModal('jobDetailsModalContainer');
+}
 
-        function openJobApplicationModal(jobId) {
-            const job = appState.jobs.find(j => j.id === jobId);
-            if (!job) return;
-            document.getElementById('jobApplicationModalTitle').querySelector('span').textContent = job.title;
-            document.getElementById('applicationJobIdInput').value = jobId;
-            // Pre-fill with user data if logged in
-            if (appState.currentUser) {
-                document.getElementById('applyNameInput').value = appState.currentUser.name || '';
-                document.getElementById('applyEmailInput').value = appState.currentUser.email || '';
-                document.getElementById('applyPhoneInput').value = appState.currentUser.phone || '';
-            } else {
-                document.getElementById('jobApplicationFormElement').reset();
-            }
-            openModal('jobApplicationModalContainer');
-        }
+function openJobApplicationModal(jobId) {
+    const job = appState.jobs.find(j => j.id === jobId);
+    if (!job || !DOMElements.jobApplicationModalTitleSpan || !DOMElements.applicationJobIdInput || !DOMElements.jobApplicationFormElement) return;
+    DOMElements.jobApplicationModalTitleSpan.textContent = job.title;
+    DOMElements.applicationJobIdInput.value = jobId;
+    const form = DOMElements.jobApplicationFormElement;
+    form.reset();
+    DOMElements.applyResumeFileError.textContent = '';
 
-        function showGeneralApplicationModal() {
-             if (appState.currentUser) {
-                document.getElementById('generalApplyNameInput').value = appState.currentUser.name || '';
-                document.getElementById('generalApplyEmailInput').value = appState.currentUser.email || '';
-                document.getElementById('generalApplyPhoneInput').value = appState.currentUser.phone || '';
-            } else {
-                document.getElementById('generalApplicationFormElement').reset();
-            }
-            openModal('generalApplicationModalContainer');
-        }
+    if (appState.currentUser && !appState.currentUser.isAdmin) {
+        form.elements['applyNameInput'].value = appState.currentUser.name || '';
+        form.elements['applyEmailInput'].value = appState.currentUser.email || '';
+        form.elements['applyPhoneInput'].value = appState.currentUser.phone || '';
+    }
+    openModal('jobApplicationModalContainer');
+}
 
+function openGeneralApplicationModal() {
+    if (!DOMElements.generalApplicationFormElement) return;
+    const form = DOMElements.generalApplicationFormElement;
+    form.reset();
+    DOMElements.generalResumeFileError.textContent = '';
 
-        // --- User Actions ---
-        function toggleUserMenu() {
-            document.getElementById('userDropdown').classList.toggle('show');
-        }
+    if (appState.currentUser && !appState.currentUser.isAdmin) {
+        form.elements['generalApplyNameInput'].value = appState.currentUser.name || '';
+        form.elements['generalApplyEmailInput'].value = appState.currentUser.email || '';
+        form.elements['generalApplyPhoneInput'].value = appState.currentUser.phone || '';
+    }
+    openModal('generalApplicationModalContainer');
+}
 
-        function handleUserLogin(event) {
-            event.preventDefault();
-            const email = document.getElementById('loginEmailInput').value;
-            const password = document.getElementById('loginPasswordInput').value;
+// --- User Authentication & Session ---
+function handleUserLogin(event) {
+    event.preventDefault();
+    const email = document.getElementById('loginEmailInput').value;
+    const password = document.getElementById('loginPasswordInput').value;
 
-            // Admin login
-            if (email === 'admin@login.com' && password === 'admin13579') {
-                appState.currentUser = appState.users.find(u => u.email === email && u.passwordHash === password) || // Check if admin exists in users array
-                                      { id:'ADMIN_ID', name: 'المدير العام', email: email, isAdmin: true, phone:'N/A', dateJoined:'N/A', type:'مدير' };
-                if (!appState.users.find(u => u.email === email)) appState.users.push(appState.currentUser); // Add if not present
-                
-                displayAlert('تم تسجيل الدخول كمدير بنجاح!', 'success');
-                closeActiveModal();
-                updateUserMenuDisplay();
-                toggleAdminDashboard(true); // Show admin panel
-                return;
-            }
-            // Regular user login (mock)
-            const user = appState.users.find(u => u.email === email && u.passwordHash === password);
-            if (user) {
-                appState.currentUser = { ...user, isAdmin: false }; // Ensure isAdmin is false for regular users
-                displayAlert('تم تسجيل الدخول بنجاح!', 'success');
-                closeActiveModal();
-                updateUserMenuDisplay();
-                toggleAdminDashboard(false); // Ensure admin panel is hidden
-            } else {
-                displayAlert('بيانات الدخول غير صحيحة. يرجى المحاولة مرة أخرى.', 'error');
-            }
-        }
+    if (email === 'admin@login.com' && password === 'admin13579') {
+        const adminUser = appState.users.find(u => u.email === email && u.isAdmin);
+        appState.currentUser = adminUser || { id:'ADMIN_RUNTIME', name: 'المدير يزيد', email: email, isAdmin: true };
+        if (!adminUser) appState.users.push(appState.currentUser); // Add if not in mock users
 
-        function handleUserRegister(event) {
-            event.preventDefault();
-            const name = document.getElementById('registerNameInput').value;
-            const email = document.getElementById('registerEmailInput').value;
-            const phone = document.getElementById('registerPhoneInput').value;
-            const password = document.getElementById('registerPasswordInput').value;
-            const confirmPassword = document.getElementById('confirmPasswordInput').value;
+        localStorage.setItem('yzUserSession', JSON.stringify(appState.currentUser));
+        displayAlert('تم تسجيل الدخول كمدير بنجاح! جاري توجيهك...', 'success');
+        closeModal('loginModalContainer');
+        updateUserMenuDisplay();
+        setTimeout(() => { window.location.href = 'page/dashboard/dashboard.html'; }, 1200);
+        return;
+    }
 
-            if (password !== confirmPassword) {
-                displayAlert('كلمتا المرور غير متطابقتين!', 'error'); return;
-            }
-            if (appState.users.find(u => u.email === email)) {
-                displayAlert('هذا البريد الإلكتروني مسجل مسبقاً!', 'error'); return;
-            }
+    const user = appState.users.find(u => u.email === email && u.passwordHash === password && !u.isAdmin);
+    if (user) {
+        appState.currentUser = { ...user, isAdmin: false };
+        localStorage.setItem('yzUserSession', JSON.stringify(appState.currentUser));
+        displayAlert('تم تسجيل الدخول بنجاح!', 'success');
+        closeModal('loginModalContainer');
+        updateUserMenuDisplay();
+    } else {
+        displayAlert('بيانات الدخول غير صحيحة.', 'error');
+    }
+}
 
-            const newUser = {
-                id: 'U' + String(appState.users.length + 1).padStart(3, '0'),
-                name: name, email: email, phone: phone,
-                dateJoined: new Date().toISOString().split('T')[0],
-                type: 'مستخدم', passwordHash: password, // Store password (hashed in real app)
-                isAdmin: false
-            };
-            appState.users.push(newUser);
-            appState.currentUser = newUser;
-            displayAlert('تم إنشاء حسابك بنجاح! مرحباً بك.', 'success');
-            closeActiveModal();
+function handleUserRegister(event) {
+    event.preventDefault();
+    const name = document.getElementById('registerNameInput').value;
+    const email = document.getElementById('registerEmailInput').value;
+    const phone = document.getElementById('registerPhoneInput').value;
+    const password = document.getElementById('registerPasswordInput').value;
+    const confirmPassword = document.getElementById('confirmPasswordInput').value;
+
+    if (password.length < 6) { displayAlert('كلمة المرور قصيرة جداً (6 أحرف على الأقل).', 'error'); return; }
+    if (password !== confirmPassword) { displayAlert('كلمتا المرور غير متطابقتين!', 'error'); return; }
+    if (appState.users.find(u => u.email === email)) { displayAlert('هذا البريد مسجل مسبقاً!', 'error'); return; }
+
+    const newUser = {
+        id: 'U' + String(Date.now()).slice(-4),
+        name, email, phone,
+        dateJoined: new Date().toISOString().split('T')[0],
+        type: 'مستخدم', passwordHash: password, isAdmin: false
+    };
+    appState.users.push(newUser);
+    appState.currentUser = newUser;
+    localStorage.setItem('yzUserSession', JSON.stringify(appState.currentUser));
+    displayAlert('تم إنشاء حسابك بنجاح! مرحباً بك.', 'success');
+    closeModal('registerModalContainer');
+    updateUserMenuDisplay();
+    // Note: If admin functionality was here, would call renderAdminUsersTable()
+}
+
+function userLogout() {
+    appState.currentUser = null;
+    localStorage.removeItem('yzUserSession');
+    displayAlert('تم تسجيل الخروج بنجاح.', 'info');
+    updateUserMenuDisplay();
+    if (DOMElements.userDropdownMenu.classList.contains('show')) toggleUserMenu(false);
+}
+
+function checkUserSession() {
+    const sessionData = localStorage.getItem('yzUserSession');
+    if (sessionData) {
+        try {
+            const userData = JSON.parse(sessionData);
+            // Here, you might want to re-validate the session with a backend in a real app
+            appState.currentUser = userData;
             updateUserMenuDisplay();
-            renderAdminUsersTable(); // Update admin table if admin is viewing
+            // No auto-redirect for admin from index.html anymore, login handles it.
+        } catch (e) {
+            console.error("Error parsing session data:", e);
+            localStorage.removeItem('yzUserSession');
         }
+    }
+}
 
-        function userLogout() {
-            appState.currentUser = null;
-            displayAlert('تم تسجيل الخروج بنجاح.', 'success');
-            updateUserMenuDisplay();
-            toggleAdminDashboard(false); // Hide admin panel on logout
-            toggleUserMenu(); // Close dropdown
+// --- Job Application & File Handling ---
+function validateResumeFile(fileInput, errorElementId) {
+    const errorElement = document.getElementById(errorElementId);
+    if (!fileInput || !errorElement) return false;
+    errorElement.textContent = '';
+
+    const file = fileInput.files[0];
+    if (!file) {
+        errorElement.textContent = 'يرجى اختيار ملف.';
+        return false;
+    }
+    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    if (!allowedTypes.includes(file.type)) {
+        errorElement.textContent = 'صيغة غير مدعومة (PDF, DOC, DOCX فقط).';
+        return false;
+    }
+    const maxSizeMB = 5;
+    if (file.size > maxSizeMB * 1024 * 1024) {
+        errorElement.textContent = `حجم الملف كبير (الأقصى ${maxSizeMB}MB).`;
+        return false;
+    }
+    return true;
+}
+
+function handleSpecificJobApplication(event) {
+    event.preventDefault();
+    if (!validateResumeFile(DOMElements.applyResumeFileInput, DOMElements.applyResumeFileError.id)) return;
+
+    const jobId = DOMElements.applicationJobIdInput.value;
+    const job = appState.jobs.find(j => j.id === jobId);
+    const applicationData = {
+        id: 'APP' + String(Date.now()).slice(-5),
+        applicantName: document.getElementById('applyNameInput').value,
+        applicantEmail: document.getElementById('applyEmailInput').value,
+        applicantPhone: document.getElementById('applyPhoneInput').value,
+        experience: document.getElementById('applyExperienceInput').value,
+        coverLetter: document.getElementById('applyCoverLetterTextarea').value,
+        resumeFileName: DOMElements.applyResumeFileInput.files[0].name,
+        jobId: jobId,
+        jobTitle: job ? job.title : 'N/A',
+        dateApplied: new Date().toISOString().split('T')[0],
+        status: 'قيد المراجعة' // Default status
+    };
+    appState.applications.push(applicationData);
+    // In a real app, upload file and save applicationData to backend
+    // localStorage.setItem('yzMockApplications', JSON.stringify(appState.applications)); // Optional: persist mock data
+    displayAlert('تم إرسال طلب التوظيف بنجاح!', 'success');
+    closeModal('jobApplicationModalContainer');
+    event.target.reset();
+}
+
+function handleGeneralCvSubmission(event) {
+    event.preventDefault();
+    if (!validateResumeFile(DOMElements.generalApplyResumeFileInput, DOMElements.generalResumeFileError.id)) return;
+
+     const generalApplicationData = {
+        id: 'GEN' + String(Date.now()).slice(-5),
+        applicantName: document.getElementById('generalApplyNameInput').value,
+        applicantEmail: document.getElementById('generalApplyEmailInput').value,
+        applicantPhone: document.getElementById('generalApplyPhoneInput').value,
+        desiredField: DOMElements.generalDesiredFieldSelect.value,
+        experience: document.getElementById('generalApplyExperienceInput').value,
+        bio: document.getElementById('generalApplyBioTextarea').value,
+        resumeFileName: DOMElements.generalApplyResumeFileInput.files[0].name,
+        jobId: null, jobTitle: 'تقديم عام',
+        dateApplied: new Date().toISOString().split('T')[0],
+        status: 'تقديم عام محفوظ'
+    };
+    appState.applications.push(generalApplicationData);
+    // localStorage.setItem('yzMockApplications', JSON.stringify(appState.applications));
+    displayAlert('تم إرسال سيرتك الذاتية بنجاح!', 'success');
+    closeModal('generalApplicationModalContainer');
+    event.target.reset();
+}
+
+// --- Chat Functionality ---
+function toggleChatWindow(forceState) {
+    const isOpen = DOMElements.chatWindowContainer.classList.toggle('show', forceState);
+    appState.chat.isWindowOpen = isOpen;
+    DOMElements.chatToggleButton.setAttribute('aria-expanded', isOpen.toString());
+    if (isOpen && appState.chat.mode === 'text') DOMElements.chatInputControl.focus();
+}
+
+function selectChatMode(mode) {
+    appState.chat.mode = mode;
+    const textInput = DOMElements.chatInputControl;
+    const voiceBtn = DOMElements.voiceRecognitionBtn;
+    const sendBtn = DOMElements.sendChatMessageBtn;
+    const textModeBtn = DOMElements.chatModeTextBtn;
+    const voiceModeBtn = DOMElements.chatModeVoiceBtn;
+
+    textInput.style.display = (mode === 'text') ? 'block' : 'none';
+    sendBtn.style.display = (mode === 'text') ? 'flex' : 'none';
+    voiceBtn.style.display = (mode === 'voice') ? 'flex' : 'none';
+    textModeBtn.classList.toggle('active', mode === 'text');
+    voiceModeBtn.classList.toggle('active', mode === 'voice');
+    textModeBtn.setAttribute('aria-pressed', mode === 'text');
+    voiceModeBtn.setAttribute('aria-pressed', mode === 'voice');
+
+    if(appState.chat.isVoiceListening && speechRecognitionInstance) speechRecognitionInstance.stop();
+    if (mode === 'text') textInput.focus();
+}
+
+function handleChatInputKeyPress(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendUserChatMessage();
+    }
+}
+
+function sendUserChatMessage() {
+    const messageText = DOMElements.chatInputControl.value.trim();
+    if (!messageText) return;
+    appendChatMessage(messageText, 'user');
+    DOMElements.chatInputControl.value = '';
+    DOMElements.chatInputControl.focus();
+    processUserMessageWithAI(messageText);
+}
+
+function appendChatMessage(text, sender, isLoading = false) {
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message', sender);
+    if (isLoading) {
+        messageElement.classList.add('loading-dots');
+        messageElement.setAttribute('aria-label', 'المساعد يكتب الآن');
+        messageElement.innerHTML = `<span>.</span><span>.</span><span>.</span>`;
+    } else {
+        messageElement.textContent = text;
+    }
+    DOMElements.chatMessagesContainer.appendChild(messageElement);
+    DOMElements.chatMessagesContainer.scrollTop = DOMElements.chatMessagesContainer.scrollHeight;
+    return messageElement;
+}
+
+async function processUserMessageWithAI(userMessage) {
+    if (appState.chat.aiIsTyping || GEMINI_API_KEY_FOR_CHATBOT === "YOUR_GEMINI_API_KEY_PLACEHOLDER" || !GEMINI_API_KEY_FOR_CHATBOT) {
+        if (GEMINI_API_KEY_FOR_CHATBOT === "YOUR_GEMINI_API_KEY_PLACEHOLDER" || !GEMINI_API_KEY_FOR_CHATBOT) {
+            appendChatMessage("عذرًا، خدمة المساعد الذكي غير مفعّلة حاليًا بسبب عدم تكوين مفتاح API.", 'bot');
         }
+        return;
+    }
+    appState.chat.aiIsTyping = true;
+    const loadingElement = appendChatMessage('', 'bot', true);
 
+    try {
+        const jobTitles = appState.jobs.map(j => j.title).join('؛ ');
+        const prompt = `أنت "مساعد ميس الذكي"، مساعد موارد بشرية ودود ومحترف لشركة "ميس للمنتجات الطبية". مهمتك الأساسية هي مساعدة المستخدمين في استفساراتهم المتعلقة بالتوظيف والشركة.
+رد دائمًا باللغة العربية وبأسلوب مهذب وموجز.
+الشركة متخصصة في المنتجات الطبية وتسعى لتوظيف أفضل الكفاءات.
+الوظائف المتاحة حاليًا هي: ${jobTitles || "لا توجد وظائف معلنة حاليًا"}.
+إذا سئلت عن ثقافة الشركة، يمكنك ذكر: الرعاية، الابتكار، العمل الجماعي، التميز، النمو، النزاهة.
+إذا سئلت عن كيفية التقديم، وجه المستخدم إلى قسم "الوظائف" في الصفحة أو زر "تقديم عام للسيرة الذاتية".
+إذا لم تكن متأكدًا من الإجابة أو كان السؤال خارج نطاق الموارد البشرية والتوظيف، اعتذر بلطف واقترح على المستخدم التواصل مع القسم المختص أو عبر معلومات الاتصال في صفحة "تواصل معنا".
+رسالة المستخدم: "${userMessage}"`;
 
-        // --- Job Application Handling ---
-        function handleSpecificJobApplication(event) {
-            event.preventDefault();
-            const jobId = document.getElementById('applicationJobIdInput').value;
-            const job = appState.jobs.find(j => j.id === jobId);
-            const applicationData = {
-                id: 'A' + String(appState.applications.length + 1).padStart(3, '0'),
-                applicantName: document.getElementById('applyNameInput').value,
-                applicantEmail: document.getElementById('applyEmailInput').value,
-                applicantPhone: document.getElementById('applyPhoneInput').value,
-                experience: document.getElementById('applyExperienceInput').value,
-                coverLetter: document.getElementById('applyCoverLetterTextarea').value,
-                resumeFile: document.getElementById('applyResumeFileInput').files[0]?.name || 'N/A',
-                jobId: jobId,
-                jobTitle: job ? job.title : 'N/A',
-                dateApplied: new Date().toISOString().split('T')[0],
-                status: 'قيد المراجعة'
-            };
-            appState.applications.push(applicationData);
-            displayAlert('تم إرسال طلب التوظيف بنجاح! سيتم التواصل معك قريباً.', 'success');
-            closeActiveModal();
-            renderAdminApplicationsTable();
-            event.target.reset();
-        }
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY_FOR_CHATBOT}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: { temperature: 0.6, topP: 0.95, topK: 40, maxOutputTokens: 300 }
+            })
+        });
+        loadingElement.remove();
 
-        function handleGeneralCvSubmission(event) {
-            event.preventDefault();
-             const generalApplicationData = {
-                id: 'GA' + String(appState.applications.filter(a=>a.id.startsWith("GA")).length + 1).padStart(3, '0'),
-                applicantName: document.getElementById('generalApplyNameInput').value,
-                applicantEmail: document.getElementById('generalApplyEmailInput').value,
-                applicantPhone: document.getElementById('generalApplyPhoneInput').value,
-                desiredField: document.getElementById('generalDesiredFieldSelect').value,
-                experience: document.getElementById('generalApplyExperienceInput').value,
-                bio: document.getElementById('generalApplyBioTextarea').value,
-                resumeFile: document.getElementById('generalApplyResumeFileInput').files[0]?.name || 'N/A',
-                jobId: null, // General application
-                jobTitle: 'تقديم عام',
-                dateApplied: new Date().toISOString().split('T')[0],
-                status: 'تقديم عام محفوظ'
-            };
-            appState.applications.push(generalApplicationData); // Add to same applications list or a different one
-            displayAlert('تم إرسال سيرتك الذاتية بنجاح! سنقوم بمراجعتها والتواصل معك عند توفر فرصة مناسبة.', 'success');
-            closeActiveModal();
-            renderAdminApplicationsTable(); // Update admin view
-            event.target.reset();
-        }
-
-        // --- Admin Panel Logic ---
-        function toggleAdminDashboard(forceShow = null) {
-            const adminPanel = document.getElementById('adminDashboardPanel');
-            if (forceShow === true) {
-                adminPanel.style.display = 'block';
-                renderAdminData();
-            } else if (forceShow === false) {
-                adminPanel.style.display = 'none';
-            } else { // Toggle
-                adminPanel.style.display = adminPanel.style.display === 'none' ? 'block' : 'none';
-                if (adminPanel.style.display === 'block') renderAdminData();
-            }
-        }
-
-        function setupAdminTabs() {
-            document.querySelectorAll('.admin-tab').forEach(tabButton => {
-                tabButton.addEventListener('click', function() {
-                    document.querySelectorAll('.admin-tab').forEach(btn => btn.classList.remove('active'));
-                    document.querySelectorAll('.admin-content').forEach(content => content.classList.remove('active'));
-                    this.classList.add('active');
-                    document.getElementById(this.dataset.tab).classList.add('active');
-                    appState.admin.activeTab = this.dataset.tab;
-                    renderAdminData(); // Re-render data for the activated tab
-                });
-            });
-        }
-
-        function renderAdminData() {
-            if (!appState.currentUser || !appState.currentUser.isAdmin) return;
-            if (document.getElementById('adminDashboardPanel').style.display === 'none') return;
-
-            if (appState.admin.activeTab === 'adminJobsContent') renderAdminJobsTable();
-            else if (appState.admin.activeTab === 'adminApplicationsContent') renderAdminApplicationsTable();
-            else if (appState.admin.activeTab === 'adminUsersContent') renderAdminUsersTable();
-            else if (appState.admin.activeTab === 'adminAnalyticsContent') renderAdminAnalytics();
-        }
-
-        function renderAdminJobsTable() {
-            const tbody = document.getElementById('adminJobsTableBody');
-            tbody.innerHTML = '';
-            appState.jobs.forEach(job => {
-                const row = tbody.insertRow();
-                row.innerHTML = `
-                    <td>${job.title}</td>
-                    <td>${job.department}</td>
-                    <td>${job.location}</td>
-                    <td>${job.datePosted}</td>
-                    <td>
-                        <button class="action-btn edit-btn" onclick="openEditJobModal('${job.id}')">تعديل</button>
-                        <button class="action-btn delete-btn" onclick="adminDeleteJob('${job.id}')">حذف</button>
-                    </td>`;
-            });
-        }
-        
-        function openAddJobModal() {
-            document.getElementById('addEditJobModalTitle').textContent = 'إضافة وظيفة جديدة';
-            document.getElementById('addEditJobSubmitBtn').textContent = 'إضافة الوظيفة';
-            document.getElementById('addEditJobFormElement').reset();
-            appState.admin.editingJobId = null;
-            openModal('addEditJobModalContainer');
-        }
-
-        function openEditJobModal(jobId) {
-            const job = appState.jobs.find(j => j.id === jobId);
-            if (!job) return;
-            appState.admin.editingJobId = jobId;
-            document.getElementById('addEditJobModalTitle').textContent = 'تعديل وظيفة';
-            document.getElementById('addEditJobSubmitBtn').textContent = 'حفظ التعديلات';
-            
-            document.getElementById('adminJobTitleInput').value = job.title;
-            document.getElementById('adminJobDepartmentSelect').value = job.department;
-            document.getElementById('adminJobLocationSelect').value = job.location;
-            document.getElementById('adminJobTypeSelect').value = job.type;
-            document.getElementById('adminJobDescriptionTextarea').value = job.description;
-            document.getElementById('adminJobResponsibilitiesTextarea').value = Array.isArray(job.responsibilities) ? job.responsibilities.join('\n') : job.responsibilities;
-            document.getElementById('adminJobQualificationsTextarea').value = Array.isArray(job.qualifications) ? job.qualifications.join('\n') : job.qualifications;
-            document.getElementById('adminJobSkillsTextarea').value = Array.isArray(job.skills) ? job.skills.join(', ') : job.skills;
-
-            openModal('addEditJobModalContainer');
-        }
-
-        function handleAdminAddEditJob(event) {
-            event.preventDefault();
-            const title = document.getElementById('adminJobTitleInput').value;
-            const department = document.getElementById('adminJobDepartmentSelect').value;
-            const location = document.getElementById('adminJobLocationSelect').value;
-            const type = document.getElementById('adminJobTypeSelect').value;
-            const description = document.getElementById('adminJobDescriptionTextarea').value;
-            const responsibilities = document.getElementById('adminJobResponsibilitiesTextarea').value.split('\n').map(s=>s.trim()).filter(Boolean);
-            const qualifications = document.getElementById('adminJobQualificationsTextarea').value.split('\n').map(s=>s.trim()).filter(Boolean);
-            const skills = document.getElementById('adminJobSkillsTextarea').value.split(',').map(s=>s.trim()).filter(Boolean);
-
-            if (appState.admin.editingJobId) { // Editing existing job
-                const jobIndex = appState.jobs.findIndex(j => j.id === appState.admin.editingJobId);
-                if (jobIndex > -1) {
-                    appState.jobs[jobIndex] = { ...appState.jobs[jobIndex], title, department, location, type, description, responsibilities, qualifications, skills };
-                    displayAlert('تم تحديث الوظيفة بنجاح!', 'success');
-                }
-            } else { // Adding new job
-                const newJob = {
-                    id: 'J' + String(appState.jobs.length + 1).padStart(3, '0'),
-                    title, department, location, type, description, responsibilities, qualifications, skills,
-                    datePosted: new Date().toISOString().split('T')[0]
-                };
-                appState.jobs.push(newJob);
-                displayAlert('تمت إضافة الوظيفة بنجاح!', 'success');
-            }
-            renderJobsGrid(); // Update public jobs list
-            renderAdminJobsTable(); // Update admin jobs table
-            closeActiveModal();
-            event.target.reset();
-            appState.admin.editingJobId = null;
-        }
-
-
-        function adminDeleteJob(jobId) {
-            if (confirm('هل أنت متأكد من حذف هذه الوظيفة بشكل دائم؟')) {
-                appState.jobs = appState.jobs.filter(j => j.id !== jobId);
-                renderJobsGrid();
-                renderAdminJobsTable();
-                displayAlert('تم حذف الوظيفة بنجاح.', 'success');
-            }
-        }
-        
-        function renderAdminApplicationsTable() {
-            const tbody = document.getElementById('adminApplicationsTableBody');
-            tbody.innerHTML = '';
-            appState.applications.forEach(app => {
-                const row = tbody.insertRow();
-                row.innerHTML = `
-                    <td>${app.applicantName} (${app.applicantEmail})</td>
-                    <td>${app.jobTitle}</td>
-                    <td>${app.dateApplied}</td>
-                    <td>
-                        <select onchange="updateApplicationStatus('${app.id}', this.value)">
-                            <option value="قيد المراجعة" ${app.status === 'قيد المراجعة' ? 'selected' : ''}>قيد المراجعة</option>
-                            <option value="تمت المقابلة" ${app.status === 'تمت المقابلة' ? 'selected' : ''}>تمت المقابلة</option>
-                            <option value="مقبول" ${app.status === 'مقبول' ? 'selected' : ''}>مقبول</option>
-                            <option value="مرفوض" ${app.status === 'مرفوض' ? 'selected' : ''}>مرفوض</option>
-                        </select>
-                    </td>
-                    <td>
-                        <button class="action-btn delete-btn" onclick="adminDeleteApplication('${app.id}')">حذف</button>
-                        ${app.resumeFile !== 'N/A' ? `<a href="#" onclick="alert('عرض السيرة الذاتية لـ ${app.applicantName}')" class="action-btn edit-btn" style="text-decoration:none; display:inline-block;">عرض CV</a>` : ''}
-                    </td>`;
-            });
-        }
-
-        function updateApplicationStatus(appId, newStatus) {
-            const app = appState.applications.find(a => a.id === appId);
-            if (app) {
-                app.status = newStatus;
-                displayAlert(`تم تحديث حالة طلب ${app.applicantName} إلى ${newStatus}.`, 'success');
-                // No need to call renderAdminApplicationsTable() again as the select itself changed.
-                // If other parts of the row need update, then call it.
-            }
-        }
-        function adminDeleteApplication(appId) {
-             if (confirm('هل أنت متأكد من حذف طلب التوظيف هذا؟')) {
-                appState.applications = appState.applications.filter(a => a.id !== appId);
-                renderAdminApplicationsTable();
-                displayAlert('تم حذف طلب التوظيف بنجاح.', 'success');
-            }
-        }
-        
-        function renderAdminUsersTable() {
-            const tbody = document.getElementById('adminUsersTableBody');
-            tbody.innerHTML = '';
-            appState.users.filter(u => u.email !== 'admin@login.com').forEach(user => { // Exclude admin itself for now
-                const row = tbody.insertRow();
-                row.innerHTML = `
-                    <td>${user.name}</td>
-                    <td>${user.email}</td>
-                    <td>${user.phone || 'N/A'}</td>
-                    <td>${user.dateJoined}</td>
-                    <td>${user.type}</td>
-                    <td>
-                        <button class="action-btn delete-btn" onclick="adminDeleteUser('${user.id}')">حذف</button>
-                    </td>`;
-            });
-        }
-         function adminDeleteUser(userId) {
-             if (confirm('هل أنت متأكد من حذف هذا المستخدم؟ سيتم حذف بياناته بشكل دائم.')) {
-                appState.users = appState.users.filter(u => u.id !== userId);
-                renderAdminUsersTable();
-                displayAlert('تم حذف المستخدم بنجاح.', 'success');
-            }
-        }
-
-        function renderAdminAnalytics() {
-            document.getElementById('analyticsTotalJobs').textContent = appState.jobs.length;
-            document.getElementById('analyticsTotalApplications').textContent = appState.applications.length;
-            document.getElementById('analyticsTotalUsers').textContent = appState.users.length;
-            const sevenDaysAgo = new Date();
-            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-            const newAppsCount = appState.applications.filter(app => new Date(app.dateApplied) >= sevenDaysAgo).length;
-            document.getElementById('analyticsNewApplications').textContent = newAppsCount;
-        }
-
-
-        // --- Chat Functionality ---
-        function toggleChatWindow() {
-            document.getElementById('chatWindowContainer').classList.toggle('show');
-        }
-
-        function selectChatMode(mode) {
-            appState.chat.mode = mode;
-            const textInput = document.getElementById('chatInputControl');
-            const voiceBtn = document.getElementById('voiceRecognitionBtn');
-            const sendBtn = document.getElementById('sendChatMsgBtn');
-            const textModeBtn = document.getElementById('chatModeTextBtn');
-            const voiceModeBtn = document.getElementById('chatModeVoiceBtn');
-
-            if (mode === 'text') {
-                textInput.style.display = 'block';
-                sendBtn.style.display = 'flex';
-                voiceBtn.style.display = 'none';
-                textModeBtn.classList.add('active');
-                voiceModeBtn.classList.remove('active');
-                if(appState.chat.isVoiceListening) speechRecognitionInstance?.stop();
-            } else { // voice mode
-                textInput.style.display = 'none';
-                sendBtn.style.display = 'none';
-                voiceBtn.style.display = 'flex';
-                textModeBtn.classList.remove('active');
-                voiceModeBtn.classList.add('active');
-            }
-        }
-
-        function handleChatInputKeyPress(event) {
-            if (event.key === 'Enter' && !event.shiftKey) { // Send on Enter, allow Shift+Enter for new line
-                event.preventDefault();
-                sendUserChatMessage();
-            }
-        }
-
-        function sendUserChatMessage() {
-            const inputElement = document.getElementById('chatInputControl');
-            const messageText = inputElement.value.trim();
-            if (!messageText) return;
-
-            appendChatMessage(messageText, 'user');
-            inputElement.value = '';
-            processUserMessageWithAI(messageText);
-        }
-
-        function appendChatMessage(text, sender, isLoading = false) {
-            const messagesDiv = document.getElementById('chatMessagesContainer');
-            const messageElement = document.createElement('div');
-            messageElement.classList.add('message', sender);
-            if (isLoading) {
-                messageElement.classList.add('loading-dots');
-                messageElement.innerHTML = `<span>.</span><span>.</span><span>.</span>`;
-            } else {
-                messageElement.textContent = text;
-            }
-            messagesDiv.appendChild(messageElement);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight; // Auto-scroll to bottom
-            return messageElement; // Return for potential modification (e.g., remove loading)
-        }
-
-        async function processUserMessageWithAI(userMessage) {
-            if (appState.chat.aiIsTyping) return;
-            appState.chat.aiIsTyping = true;
-            const loadingElement = appendChatMessage('', 'bot', true);
-
-            try {
-                // !!! تنبيه أمني هام: لا تستخدم مفتاح API مباشرة في كود الإنتاج للواجهة الأمامية !!!
-                // هذا لأغراض العرض التوضيحي فقط. في الإنتاج، يجب أن يتم هذا الطلب عبر خادم وسيط.
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY_FOR_CHATBOT}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [{ text: `أنت "مساعد ميس الذكي"، مساعد موارد بشرية لشركة "ميس للمنتجات الطبية". مهمتك هي الرد على استفسارات المستخدمين حول الوظائف المتاحة (استخدم قائمة الوظائف التالية إذا سئلت: ${JSON.stringify(appState.jobs.map(j=>j.title))}), ثقافة الشركة، عملية التقديم، وتقديم معلومات عامة عن الشركة. كن ودودًا ومحترفًا وقدم إجابات موجزة ومفيدة باللغة العربية. إذا لم تعرف الإجابة، قل أنك لا تملك المعلومة حاليًا واقترح على المستخدم التواصل مع قسم الموارد البشرية مباشرة. رسالة المستخدم: "${userMessage}"` }]
-                        }],
-                        generationConfig: { temperature: 0.7, topP: 0.9, topK: 40, maxOutputTokens: 300 }
-                    })
-                });
-                loadingElement.remove(); // Remove loading indicator
-
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    console.error("Gemini API Error:", response.status, errorData);
-                    appendChatMessage('عذرًا، أواجه بعض الصعوبات التقنية الآن. يرجى المحاولة لاحقًا.', 'bot');
-                    appState.chat.aiIsTyping = false;
-                    return;
-                }
-
-                const data = await response.json();
-                if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
-                    const botResponse = data.candidates[0].content.parts[0].text;
-                    appendChatMessage(botResponse, 'bot');
-                } else if (data.promptFeedback && data.promptFeedback.blockReason) {
-                    console.warn("Gemini prompt blocked:", data.promptFeedback.blockReason);
-                    appendChatMessage('عذرًا، لا يمكنني معالجة هذا الطلب حاليًا.', 'bot');
-                }
-                else {
-                    appendChatMessage('عذرًا، لم أفهم طلبك. هل يمكنك توضيحه؟', 'bot');
-                }
-            } catch (error) {
-                console.error("Chat AI Error:", error);
-                loadingElement.remove();
-                appendChatMessage('حدث خطأ أثناء محاولة معالجة طلبك. يرجى المحاولة مرة أخرى أو التواصل مع الدعم الفني.', 'bot');
-            }
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.error("Gemini API Error:", response.status, errorData);
+            appendChatMessage('عذرًا، أواجه بعض الصعوبات التقنية. يرجى المحاولة لاحقًا.', 'bot');
             appState.chat.aiIsTyping = false;
+            return;
         }
 
-        function initializeSpeechRecognitionAPI() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (SpeechRecognition) {
-                speechRecognitionInstance = new SpeechRecognition();
-                speechRecognitionInstance.lang = 'ar-SA';
-                speechRecognitionInstance.continuous = false; // Stop after first result
-                speechRecognitionInstance.interimResults = false;
-
-                speechRecognitionInstance.onresult = function(event) {
-                    const transcript = event.results[0][0].transcript;
-                    appendChatMessage(transcript, 'user');
-                    processUserMessageWithAI(transcript);
-                };
-                speechRecognitionInstance.onerror = function(event) {
-                    console.error("Speech Recognition Error:", event.error);
-                    let errorMsg = 'حدث خطأ في التعرف على الصوت.';
-                    if (event.error === 'no-speech') errorMsg = 'لم يتم اكتشاف أي كلام. حاول مرة أخرى.';
-                    if (event.error === 'audio-capture') errorMsg = 'مشكلة في التقاط الصوت. تحقق من الميكروفون.';
-                    if (event.error === 'not-allowed') errorMsg = 'تم رفض إذن استخدام الميكروفون.';
-                    appendChatMessage(errorMsg, 'bot');
-                };
-                speechRecognitionInstance.onstart = function() {
-                    appState.chat.isVoiceListening = true;
-                    updateVoiceRecognitionButtonUI();
-                };
-                speechRecognitionInstance.onend = function() {
-                    appState.chat.isVoiceListening = false;
-                    updateVoiceRecognitionButtonUI();
-                };
-            } else {
-                console.warn("Speech Recognition API not supported by this browser.");
-                document.getElementById('chatModeVoiceBtn').disabled = true; // Disable voice option
-                document.getElementById('chatModeVoiceBtn').title = "التعرف على الصوت غير مدعوم في متصفحك";
-            }
+        const data = await response.json();
+        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+            const botResponse = data.candidates[0].content.parts[0].text;
+            appendChatMessage(botResponse, 'bot');
+        } else if (data.promptFeedback?.blockReason) {
+            appendChatMessage('عذرًا، لا يمكنني معالجة هذا الطلب حاليًا.', 'bot');
+        } else {
+            appendChatMessage('عذرًا، لم أفهم طلبك. هل يمكنك توضيحه؟', 'bot');
         }
+    } catch (error) {
+        console.error("Chat AI Processing Error:", error);
+        loadingElement?.remove();
+        appendChatMessage('حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.', 'bot');
+    }
+    appState.chat.aiIsTyping = false;
+}
 
-        function toggleVoiceRecognition() {
-            if (!speechRecognitionInstance) {
-                appendChatMessage('خاصية التعرف على الصوت غير مدعومة في متصفحك.', 'bot');
-                return;
-            }
-            if (appState.chat.isVoiceListening) {
-                speechRecognitionInstance.stop();
-            } else {
-                try {
-                    speechRecognitionInstance.start();
-                } catch (e) {
-                    console.error("Error starting speech recognition:", e);
-                     appendChatMessage('لم أتمكن من بدء التعرف على الصوت. تحقق من أذونات الميكروفون.', 'bot');
-                }
-            }
+function initializeSpeechRecognitionAPI() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition && DOMElements.chatModeVoiceBtn && DOMElements.voiceRecognitionBtn) {
+        speechRecognitionInstance = new SpeechRecognition();
+        speechRecognitionInstance.lang = 'ar-SA';
+        speechRecognitionInstance.continuous = false;
+        speechRecognitionInstance.interimResults = false;
+
+        speechRecognitionInstance.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            appendChatMessage(transcript, 'user');
+            processUserMessageWithAI(transcript);
+        };
+        speechRecognitionInstance.onerror = function(event) {
+            console.error("Speech Reco Error:", event.error);
+            let errorMsg = 'حدث خطأ في التعرف على الصوت.';
+            if (event.error === 'no-speech') errorMsg = 'لم يتم اكتشاف أي كلام.';
+            if (event.error === 'audio-capture') errorMsg = 'مشكلة في الميكروفون.';
+            if (event.error === 'not-allowed') errorMsg = 'تم رفض إذن الميكروفون.';
+            appendChatMessage(errorMsg, 'bot');
+        };
+        speechRecognitionInstance.onstart = function() { appState.chat.isVoiceListening = true; updateVoiceRecognitionButtonUI(); };
+        speechRecognitionInstance.onend = function() { appState.chat.isVoiceListening = false; updateVoiceRecognitionButtonUI(); };
+    } else {
+        console.warn("Speech Recognition API not supported or buttons missing.");
+        if(DOMElements.chatModeVoiceBtn) DOMElements.chatModeVoiceBtn.disabled = true;
+        if(DOMElements.chatModeVoiceBtn) DOMElements.chatModeVoiceBtn.title = "التعرف على الصوت غير مدعوم";
+        if(DOMElements.voiceRecognitionBtn) DOMElements.voiceRecognitionBtn.style.display = 'none';
+    }
+}
+
+function toggleVoiceRecognition() {
+    if (!speechRecognitionInstance) { appendChatMessage('خاصية التعرف على الصوت غير مدعومة.', 'bot'); return; }
+    if (appState.chat.isVoiceListening) {
+        speechRecognitionInstance.stop();
+    } else {
+        try { speechRecognitionInstance.start(); }
+        catch (e) { appendChatMessage('لم أتمكن من بدء التعرف. تحقق من أذونات الميكروفون.', 'bot');}
+    }
+}
+
+function updateVoiceRecognitionButtonUI() {
+    const voiceBtn = DOMElements.voiceRecognitionBtn;
+    if (!voiceBtn) return;
+    if (appState.chat.isVoiceListening) {
+        voiceBtn.innerHTML = '<i class="fas fa-stop-circle"></i>';
+        voiceBtn.classList.add('listening');
+        voiceBtn.setAttribute('aria-label', 'إيقاف التسجيل الصوتي');
+        voiceBtn.setAttribute('aria-pressed', 'true');
+    } else {
+        voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+        voiceBtn.classList.remove('listening');
+        voiceBtn.setAttribute('aria-label', 'بدء التسجيل الصوتي');
+        voiceBtn.setAttribute('aria-pressed', 'false');
+    }
+}
+
+// --- Utility Functions ---
+function displayAlert(message, type = 'success', duration = 4600) {
+    if (!DOMElements.globalAlertContainer) return;
+    // Remove any existing alert of the same type to prevent spamming (optional)
+    // const existingAlertSameType = DOMElements.globalAlertContainer.querySelector(`.message-alert.${type}`);
+    // if(existingAlertSameType) existingAlertSameType.remove();
+
+    const alertElement = document.createElement('div');
+    alertElement.className = `message-alert ${type}`;
+    alertElement.setAttribute('role', type === 'error' ? 'alert' : 'status');
+
+    const icon = document.createElement('i');
+    icon.className = `fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-times-circle' : 'fa-info-circle'}`;
+    alertElement.appendChild(icon);
+    alertElement.appendChild(document.createTextNode(" " + message));
+
+    // Prepend for newest on top, or append for newest at bottom
+    DOMElements.globalAlertContainer.prepend(alertElement);
+
+    // Force reflow for animation
+    void alertElement.offsetWidth;
+    alertElement.style.animation = `slideInFadeAlert 0.4s ease-out forwards, fadeOutAlertLater 0.4s ease-in ${ (duration - 400) / 1000}s forwards`;
+
+    setTimeout(() => {
+        // Check if element still exists before trying to remove
+        if (alertElement.parentElement) {
+            alertElement.remove();
         }
+    }, duration);
+}
 
-        function updateVoiceRecognitionButtonUI() {
-            const voiceBtn = document.getElementById('voiceRecognitionBtn');
-            if (appState.chat.isVoiceListening) {
-                voiceBtn.innerHTML = '<i class="fas fa-stop-circle"></i>'; // أيقونة إيقاف
-                voiceBtn.classList.add('listening');
-                voiceBtn.setAttribute('aria-label', 'إيقاف التسجيل الصوتي');
-            } else {
-                voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
-                voiceBtn.classList.remove('listening');
-                voiceBtn.setAttribute('aria-label', 'بدء التسجيل الصوتي');
-            }
-        }
-
-
-        // --- Utility Functions ---
-        let alertTimeout;
-        function displayAlert(message, type = 'success') { // success or error
-            clearTimeout(alertTimeout); // Clear existing timeout if any
-            const existingAlert = document.querySelector('.message-alert');
-            if (existingAlert) existingAlert.remove();
-
-            const alertElement = document.createElement('div');
-            alertElement.className = `message-alert ${type}`;
-            alertElement.textContent = message;
-            document.body.appendChild(alertElement);
-
-            alertTimeout = setTimeout(() => {
-                alertElement.style.animation = 'fadeOutAlert 0.5s ease forwards';
-                setTimeout(() => alertElement.remove(), 500);
-            }, 4500); // Alert visible for 4.5s, then starts fade out
-        }
-
-        // Close user dropdown if clicked outside
-        window.addEventListener('click', function(event) {
-            const userMenu = document.querySelector('.user-menu');
-            const userDropdown = document.getElementById('userDropdown');
-            if (userMenu && !userMenu.contains(event.target)) {
-                userDropdown.classList.remove('show');
-            }
-        });
+// Debounce function (optional, for search or other frequent events)
+function debounce(func, delay) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+    };
+}

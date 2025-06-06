@@ -1,871 +1,435 @@
-      * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Arial', 'Helvetica Neue', Helvetica, sans-serif; /* خط أكثر حداثة */
-            line-height: 1.7;
-            color: #333;
-            direction: rtl;
-            background-color: #f4f7f6; /* خلفية ناعمة */
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        /* --- Header --- */
-        .header {
-            background: linear-gradient(135deg, #1F3A55, #3498db); /* تدرج ألوان احترافي */
-            color: white;
-            padding: 1rem 0;
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            transition: background-color 0.3s ease;
-        }
-
-        .nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.9rem; /* تعديل طفيف */
-            font-weight: bold;
-            color: #ecf0f1;
-            text-decoration: none;
-        }
-
-        .nav-menu {
-            display: flex;
-            list-style: none;
-            gap: 1.5rem; /* تعديل المسافة */
-        }
-
-        .nav-menu a {
-            color: white;
-            text-decoration: none;
-            padding: 0.6rem 1.1rem; /* تعديل الحشو */
-            border-radius: 6px; /* تعديل الحواف */
-            transition: background-color 0.25s ease, color 0.25s ease;
-            font-weight: 500;
-        }
-
-        .nav-menu a:hover, .nav-menu a.active {
-            background-color: rgba(255,255,255,0.15);
-            color: #fff;
-        }
-
-        .user-menu {
-            position: relative;
-        }
-
-        .user-icon {
-            cursor: pointer;
-            font-size: 1.6rem; /* تعديل الحجم */
-            padding: 0.5rem;
-            border-radius: 50%;
-            transition: background-color 0.3s;
-        }
-         .user-icon:hover {
-            background-color: rgba(255,255,255,0.1);
-        }
-
-
-        .dropdown {
-            position: absolute;
-            top: calc(100% + 10px); /* مسافة من الأيقونة */
-            left: 0; /* محاذاة لليسار بالنسبة للعنصر الأب */
-            background: white;
-            color: #333;
-            border-radius: 8px; /* حواف أكثر نعومة */
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            min-width: 220px;
-            display: none;
-            z-index: 1001;
-            overflow: hidden; /* لضمان تطبيق border-radius على العناصر الداخلية */
-        }
-
-        .dropdown.show {
-            display: block;
-            animation: fadeInDropdown 0.3s ease-out;
-        }
-
-        @keyframes fadeInDropdown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .dropdown a, .dropdown div { /* تعديل ليشمل div لمعلومات المستخدم */
-            display: block;
-            padding: 0.9rem 1.2rem; /* تعديل الحشو */
-            text-decoration: none;
-            color: #444; /* لون نص أغمق قليلاً */
-            border-bottom: 1px solid #f0f0f0;
-            transition: background-color 0.2s ease;
-            font-size: 0.95rem;
-        }
-        .dropdown div small { color: #777; font-size: 0.8rem; }
-
-        .dropdown a:last-child {
-            border-bottom: none;
-        }
-
-        .dropdown a:hover {
-            background-color: #f8f9fa;
-            color: #3498db;
-        }
-
-        /* --- Main Content & Hero --- */
-        .main-content {
-            margin-top: 75px; /* مساحة للرأسية الثابتة */
-        }
-
-        .hero {
-            background: linear-gradient(to right bottom, rgba(31, 58, 85, 0.85), rgba(52, 152, 219, 0.85)), url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center/cover;
-            /* استخدام صورة حقيقية ذات صلة بالمجال الطبي */
-            color: white;
-            padding: 7rem 0; /* زيادة الحشو */
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        .hero::before { /* تأثير تراكب خفيف */
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            /* background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 70%); */
-        }
-
-
-        .hero-content {
-            position: relative; /* ليكون فوق ::before */
-            max-width: 800px; /* زيادة عرض المحتوى قليلاً */
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        .hero h1 {
-            font-size: 3.2rem; /* تعديل الحجم */
-            margin-bottom: 1.5rem;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
-            font-weight: 700;
-        }
-
-        .hero p {
-            font-size: 1.25rem; /* تعديل الحجم */
-            margin-bottom: 2.5rem;
-            max-width: 650px;
-            margin-left: auto;
-            margin-right: auto;
-            line-height: 1.8;
-            opacity: 0.9;
-        }
-
-        .cta-button {
-            background: #e74c3c;
-            color: white;
-            padding: 1rem 2.5rem; /* تعديل الحشو */
-            border: none;
-            border-radius: 8px; /* حواف أكثر نعومة */
-            font-size: 1.15rem; /* تعديل الحجم */
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            font-weight: 600;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        .cta-button:hover {
-            background: #c0392b;
-            transform: translateY(-2px);
-        }
-        .cta-button i {
-            margin-left: 0.5rem;
-        }
-
-
-        /* --- Sections --- */
-        .section {
-            padding: 5rem 0; /* زيادة الحشو */
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: 2.8rem; /* تعديل الحجم */
-            margin-bottom: 4rem; /* زيادة المسافة */
-            color: #2c3e50;
-            position: relative;
-            padding-bottom: 1rem;
-        }
-        .section-title::after { /* خط زخرفي تحت العنوان */
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 4px;
-            background-color: #3498db;
-            border-radius: 2px;
-        }
-
-
-        /* --- Company Culture --- */
-        .culture-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* تعديل minmax */
-            gap: 2.5rem; /* تعديل المسافة */
-        }
-
-        .culture-card {
-            background: white;
-            padding: 2.5rem; /* تعديل الحشو */
-            border-radius: 12px; /* حواف أكثر نعومة */
-            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .culture-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-        }
-
-        .culture-card i {
-            font-size: 2.8rem; /* تعديل الحجم */
-            color: #3498db;
-            margin-bottom: 1.2rem; /* تعديل المسافة */
-            display: inline-block;
-            padding: 1rem;
-            background-color: #eaf5ff;
-            border-radius: 50%;
-        }
-        .culture-card h3 {
-            font-size: 1.3rem; /* تعديل الحجم */
-            color: #2c3e50;
-            margin-bottom: 0.8rem; /* تعديل المسافة */
-        }
-        .culture-card p {
-            font-size: 0.95rem; /* تعديل الحجم */
-            color: #555;
-        }
-
-        /* --- Success Stories --- */
-        .stories-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* تعديل minmax */
-            gap: 2.5rem;
-        }
-
-        .story-card {
-            background: #ffffff; /* خلفية بيضاء للتباين */
-            padding: 2rem;
-            border-radius: 10px;
-            border-left: 5px solid #3498db; /* شريط جانبي مميز */
-            box-shadow: 0 5px 15px rgba(0,0,0,0.07);
-            position: relative;
-        }
-        .story-card::before { /* أيقونة اقتباس */
-            content: '\f10d'; /* Font Awesome quote-left */
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            font-size: 2.5rem;
-            color: #3498db;
-            opacity: 0.15;
-        }
-
-
-        .story-card p { font-size: 1rem; line-height: 1.8; color: #444; }
-        .story-author {
-            font-weight: bold;
-            color: #2c3e50;
-            margin-top: 1.5rem; /* تعديل المسافة */
-            display: block; /* لضمان التباعد الصحيح */
-            font-size: 0.9rem;
-        }
-
-
-        /* --- Jobs Section --- */
-        .jobs-section {
-            background: #eef1f5; /* خلفية مختلفة قليلاً */
-        }
-
-        .filters {
-            display: flex;
-            gap: 1.5rem; /* تعديل المسافة */
-            margin-bottom: 2.5rem; /* تعديل المسافة */
-            flex-wrap: wrap;
-            justify-content: center; /* توسيط الفلاتر */
-        }
-
-        .filter-select {
-            padding: 0.7rem 1.2rem; /* تعديل الحشو */
-            border: 1px solid #ccc; /* تعديل الحدود */
-            border-radius: 6px;
-            font-size: 1rem;
-            background-color: white;
-            min-width: 200px; /* عرض أدنى */
-        }
-
-        .jobs-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* تعديل minmax */
-            gap: 2.5rem;
-        }
-
-        .job-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            display: flex;
-            flex-direction: column; /* لترتيب العناصر الداخلية */
-        }
-
-        .job-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
-        }
-
-        .job-title {
-            font-size: 1.4rem; /* تعديل الحجم */
-            color: #2c3e50;
-            margin-bottom: 0.7rem;
-            font-weight: 600;
-        }
-
-        .job-department {
-            color: #3498db;
-            font-weight: bold;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-        }
-
-        .job-details {
-            display: flex;
-            gap: 0.8rem; /* تعديل المسافة */
-            margin-bottom: 1.2rem;
-            flex-wrap: wrap;
-        }
-
-        .job-detail {
-            background: #e9ecef;
-            color: #495057;
-            padding: 0.4rem 0.9rem; /* تعديل الحشو */
-            border-radius: 20px; /* حواف أكثر دائرية */
-            font-size: 0.85rem;
-        }
-        .job-detail i { margin-left: 0.3rem; }
-
-
-        .job-description-snippet {
-            font-size: 0.95rem;
-            color: #555;
-            margin-bottom: 1.5rem;
-            flex-grow: 1; /* لجعل الوصف يأخذ المساحة المتاحة */
-            line-height: 1.7;
-        }
-
-        .job-actions {
-            display: flex;
-            gap: 1rem;
-            margin-top: auto; /* لدفع الأزرار لأسفل البطاقة */
-        }
-
-        .job-actions .apply-btn, .job-actions .details-btn {
-            flex: 1; /* توزيع المساحة بالتساوي */
-            padding: 0.9rem 1.5rem; /* تعديل الحشو */
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            font-weight: 600;
-            text-align: center;
-        }
-        .job-actions .apply-btn {
-            background: #27ae60; color: white;
-        }
-        .job-actions .apply-btn:hover {
-            background: #219a52; transform: translateY(-1px);
-        }
-         .job-actions .details-btn {
-            background: transparent; color: #3498db; border: 1px solid #3498db;
-        }
-        .job-actions .details-btn:hover {
-            background: #3498db; color: white; transform: translateY(-1px);
-        }
-
-        /* --- Support Chat --- */
-        .support-chat {
-            position: fixed;
-            bottom: 25px;
-            left: 25px; /* تعديل الموضع */
-            z-index: 1000;
-        }
-
-        .chat-toggle {
-            background: #e74c3c;
-            color: white;
-            width: 65px; /* تعديل الحجم */
-            height: 65px;
-            border-radius: 50%;
-            border: none;
-            font-size: 1.8rem; /* تعديل حجم الأيقونة */
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.25);
-            transition: transform 0.2s ease, background-color 0.2s ease;
-            display: flex; /* لتوسيط الأيقونة */
-            align-items: center;
-            justify-content: center;
-        }
-
-        .chat-toggle:hover {
-            transform: scale(1.08);
-            background-color: #c0392b;
-        }
-
-        .chat-window {
-            position: absolute;
-            bottom: 85px; /* مسافة من زر التبديل */
-            left: 0;
-            width: 360px; /* تعديل العرض */
-            max-height: 550px; /* تعديل أقصى ارتفاع */
-            background: white;
-            border-radius: 12px; /* حواف أكثر نعومة */
-            box-shadow: 0 12px 35px rgba(0,0,0,0.2);
-            display: none;
-            flex-direction: column;
-            overflow: hidden; /* لضمان تطبيق border-radius */
-            animation: slideUpChat 0.4s ease-out;
-        }
-        @keyframes slideUpChat {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-
-        .chat-window.show {
-            display: flex;
-        }
-
-        .chat-header {
-            background: linear-gradient(135deg, #1F3A55, #3498db); /* نفس تدرج الرأسية */
-            color: white;
-            padding: 1rem 1.2rem; /* تعديل الحشو */
-            border-radius: 12px 12px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .chat-header h4 { font-size: 1.1rem; font-weight: 600; }
-        .chat-header button { font-size: 1.2rem; }
-
-
-        .chat-options {
-            display: flex;
-            gap: 0.8rem;
-            padding: 0.8rem;
-            background: #f0f2f5; /* خلفية خفيفة للخيارات */
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .chat-option {
-            flex: 1;
-            padding: 0.7rem; /* تعديل الحشو */
-            background: #3498db;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background-color 0.2s ease;
-        }
-        .chat-option:hover { background: #2980b9; }
-        .chat-option.active { background: #2c3e50; } /* لتمييز الوضع النشط */
-        .chat-option i { margin-left: 0.4rem; }
-
-
-        .chat-messages {
-            flex: 1;
-            padding: 1rem;
-            overflow-y: auto;
-            background-color: #ffffff; /* لضمان عدم شفافية الرسائل */
-            /* max-height: 300px; */ /* تم التحكم فيه بواسطة max-height للنافذة */
-        }
-
-        .chat-input-container {
-            padding: 1rem;
-            border-top: 1px solid #e0e0e0;
-            background-color: #f8f9fa;
-            display: flex; /* لترتيب الإدخال وزر الإرسال */
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .chat-input {
-            flex-grow: 1; /* ليأخذ المساحة المتاحة */
-            padding: 0.8rem 1rem; /* تعديل الحشو */
-            border: 1px solid #ccc;
-            border-radius: 20px; /* حواف دائرية للإدخال */
-            font-size: 1rem;
-            outline: none;
-        }
-        .chat-input:focus {
-            border-color: #3498db;
-            box-shadow: 0 0 0 2px rgba(52,152,219,0.2);
-        }
-
-        #sendChatBtn { /* زر إرسال نصي */
-            background: #3498db;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.2s;
-        }
-        #sendChatBtn:hover { background: #2980b9; }
-
-        #voiceBtn { /* زر الإدخال الصوتي */
-            background: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            display: flex; /* تم تحديده في JS */
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.2s;
-        }
-         #voiceBtn:hover { background: #c0392b; }
-        #voiceBtn.listening { background: #27ae60; } /* لون مختلف عند الاستماع */
-
-
-        .message {
-            margin-bottom: 1rem;
-            padding: 0.8rem 1.2rem; /* تعديل الحشو */
-            border-radius: 18px; /* حواف أكثر دائرية للرسائل */
-            max-width: 85%; /* تعديل العرض */
-            line-height: 1.5;
-            word-wrap: break-word; /* لكسر الكلمات الطويلة */
-        }
-
-        .message.user {
-            background: #3498db;
-            color: white;
-            margin-left: auto; /* محاذاة لليسار (لأننا RTL) */
-            border-bottom-left-radius: 5px; /* تعديل الحواف لتبدو كفقاعة */
-        }
-
-        .message.bot {
-            background: #e9ecef;
-            color: #333;
-            margin-right: auto; /* محاذاة لليمين */
-            border-bottom-right-radius: 5px;
-        }
-        .message.bot.loading-dots span { /* تحريك النقاط */
-            display: inline-block;
-            animation: blink 1.4s infinite both;
-        }
-        .message.bot.loading-dots span:nth-child(2) { animation-delay: .2s; }
-        .message.bot.loading-dots span:nth-child(3) { animation-delay: .4s; }
-        @keyframes blink { 0% { opacity: .2; } 20% { opacity: 1; } 100% { opacity: .2; } }
-
-
-        /* --- Modals --- */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.6); /* خلفية أغمق قليلاً */
-            z-index: 2000;
-            overflow-y: auto; /* للسماح بالتمرير إذا كان المحتوى أطول */
-            padding: 20px; /* لإعطاء مساحة حول المودال على الشاشات الصغيرة */
-        }
-
-        .modal.show {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            animation: fadeInModalBackground 0.3s ease-out;
-        }
-        @keyframes fadeInModalBackground {
-            from { background: rgba(0,0,0,0); }
-            to { background: rgba(0,0,0,0.6); }
-        }
-
-
-        .modal-content {
-            background: white;
-            padding: 2.5rem; /* تعديل الحشو */
-            border-radius: 12px; /* حواف أكثر نعومة */
-            max-width: 550px; /* تعديل العرض */
-            width: 95%;
-            /* max-height: 90vh; */ /* تم التحكم فيه بواسطة overflow-y على .modal */
-            /* overflow-y: auto; */ /* تم نقله إلى .modal */
-            animation: scaleUpModal 0.3s ease-out forwards;
-            position: relative; /* لزر الإغلاق المطلق */
-        }
-        @keyframes scaleUpModal {
-            from { opacity: 0; transform: scale(0.95) translateY(10px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem; /* تعديل المسافة */
-            padding-bottom: 1rem; /* إضافة حشو سفلي */
-            border-bottom: 1px solid #eee; /* خط فاصل خفيف */
-        }
-        .modal-header h3 { font-size: 1.5rem; color: #2c3e50; }
-
-
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 1.8rem; /* تعديل حجم الأيقونة */
-            cursor: pointer;
-            color: #888;
-            transition: color 0.2s ease;
-            position: absolute; /* ليكون في الزاوية العلوية */
-            top: 1rem;
-            left: 1rem; /* أو right إذا كان بالإنجليزية */
-        }
-        .close-btn:hover { color: #e74c3c; }
-
-
-        .form-group {
-            margin-bottom: 1.2rem; /* تعديل المسافة */
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.6rem; /* تعديل المسافة */
-            font-weight: 600; /* خط أثقل للتسميات */
-            color: #495057;
-        }
-
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 0.9rem 1rem; /* تعديل الحشو */
-            border: 1px solid #ced4da; /* حدود أفتح قليلاً */
-            border-radius: 6px;
-            font-size: 1rem;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-            background-color: #fdfdfd;
-        }
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52,152,219,0.15);
-        }
-
-
-        .form-group textarea {
-            min-height: 120px; /* تعديل الارتفاع الأدنى */
-            resize: vertical;
-        }
-
-        .submit-btn {
-            background: #3498db;
-            color: white;
-            padding: 1rem 2rem;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1.05rem; /* تعديل الحجم */
-            width: 100%;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            font-weight: 600;
-            margin-top: 1rem; /* مسافة علوية */
-        }
-        .submit-btn:hover {
-            background: #2980b9;
-            transform: translateY(-1px);
-        }
-
-
-        /* --- Admin Panel --- */
-        .admin-panel {
-            background: #f8f9fa; /* خلفية أفتح للوحة التحكم */
-            color: #333;
-            padding: 2.5rem; /* تعديل الحشو */
-            margin-top: 2rem;
-            border-radius: 12px;
-            display: none; /* يتم التحكم به بواسطة JS */
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        }
-        .admin-panel.show { display: block; }
-        .admin-panel h2 { text-align: center; margin-bottom: 2rem; color: #2c3e50; }
-
-
-        .admin-tabs {
-            display: flex;
-            gap: 0.5rem; /* تقليل المسافة */
-            margin-bottom: 2.5rem;
-            flex-wrap: wrap;
-            border-bottom: 2px solid #dee2e6;
-        }
-
-        .admin-tab {
-            background: transparent; /* بدون خلفية افتراضية */
-            color: #495057; /* لون نص أغمق */
-            padding: 1rem 1.5rem;
-            border: none;
-            border-bottom: 3px solid transparent; /* للتمييز عند النشاط */
-            border-radius: 0; /* لإزالة الحواف الدائرية من الأزرار */
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: color 0.2s ease, border-bottom-color 0.2s ease;
-        }
-        .admin-tab:hover { color: #3498db; }
-        .admin-tab.active {
-            color: #3498db;
-            border-bottom-color: #3498db;
-        }
-
-        .admin-content { display: none; }
-        .admin-content.active { display: block; animation: fadeInContent 0.5s ease; }
-        @keyframes fadeInContent { from { opacity: 0; } to { opacity: 1; } }
-
-
-        .data-table {
-            width: 100%;
-            background: white;
-            color: #333;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid #dee2e6; /* إضافة حدود للجدول */
-            border-collapse: separate; /* أو collapse إذا كنت تفضل */
-            border-spacing: 0; /* لإزالة المسافات بين الخلايا إذا كان collapse */
-        }
-
-        .data-table th,
-        .data-table td {
-            padding: 1rem 1.2rem; /* تعديل الحشو */
-            text-align: right;
-            border-bottom: 1px solid #e9ecef; /* خطوط أفتح بين الصفوف */
-        }
-        .data-table tr:last-child td { border-bottom: none; } /* إزالة الحد السفلي لآخر صف */
-
-        .data-table th {
-            background: #f8f9fa;
-            font-weight: 600; /* خط أثقل لرؤوس الأعمدة */
-            color: #495057;
-            text-transform: uppercase; /* جعل الحروف كبيرة */
-            font-size: 0.85rem; /* تصغير حجم خط الرأس قليلاً */
-        }
-         .data-table tbody tr:hover { background-color: #f1f8ff; } /* تظليل الصف عند المرور */
-
-
-        .action-btn {
-            padding: 0.4rem 0.9rem; /* تعديل الحشو */
-            margin: 0 0.3rem; /* تعديل المسافة */
-            border: none;
-            border-radius: 5px; /* حواف أكثر نعومة */
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: opacity 0.2s ease;
-        }
-        .action-btn:hover { opacity: 0.8; }
-
-        .edit-btn { background: #f39c12; color: white; }
-        .delete-btn { background: #e74c3c; color: white; }
-        .status-btn { background: #3498db; color: white; } /* زر تحديث الحالة */
-
-
-        /* --- Responsive --- */
-        @media (max-width: 992px) { /* للأجهزة اللوحية وما دون */
-            .nav-menu { gap: 1rem; }
-            .nav-menu a { padding: 0.5rem 0.8rem; }
-            .filters { justify-content: flex-start; }
-        }
-
-        @media (max-width: 768px) {
-            .nav-menu { display: none; } /* إخفاء القائمة الرئيسية وإظهار أيقونة القائمة المنسدلة (إذا أضيفت) */
-            .logo { font-size: 1.6rem; }
-            .user-icon { font-size: 1.4rem; }
-            .hero h1 { font-size: 2.5rem; }
-            .hero p { font-size: 1.1rem; }
-            .section-title { font-size: 2.2rem; }
-            .culture-grid, .stories-container, .jobs-grid { grid-template-columns: 1fr; }
-            .filters { flex-direction: column; align-items: stretch; }
-            .filter-select { width: 100%; }
-            .chat-window { width: 320px; max-height: 450px; }
-            .admin-tabs { flex-direction: column; align-items: stretch; }
-            .admin-tab { text-align: center; border-bottom-width: 2px; }
-            .data-table { font-size: 0.9rem; }
-            .data-table th, .data-table td { padding: 0.8rem; }
-            .action-btn { display: block; width: 100%; margin: 0.3rem 0; }
-        }
-
-        @media (max-width: 480px) {
-            .nav-container, .container { padding: 0 1rem; }
-            .hero { padding: 5rem 0; }
-            .hero h1 { font-size: 2rem; }
-            .section { padding: 3rem 0; }
-            .section-title { font-size: 1.8rem; margin-bottom: 2.5rem; }
-            .chat-window { width: calc(100vw - 30px); left: 15px; bottom: 80px; max-height: 70vh;}
-            .support-chat { left: 15px; bottom: 15px; }
-            .modal-content { padding: 1.5rem; width: 95%; }
-            .cta-button { padding: 0.8rem 1.5rem; font-size: 1rem; }
-            .job-card, .culture-card, .story-card { padding: 1.5rem; }
-        }
-
-        /* --- Loading Spinner & Message Alerts --- */
-        /* .loading-dots span { تم نقله إلى .message.bot.loading-dots } */
-        .message-alert {
-            padding: 1rem;
-            margin: 1rem auto; /* توسيط الرسالة */
-            border-radius: 8px; /* حواف أكثر نعومة */
-            font-weight: 500; /* تعديل الوزن */
-            text-align: center;
-            max-width: 500px; /* تحديد عرض أقصى */
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            position: fixed; /* لتظهر فوق المحتوى */
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 3000; /* فوق كل شيء */
-            opacity: 0;
-            animation: fadeInAlert 0.5s ease forwards, fadeOutAlert 0.5s ease 4.5s forwards;
-        }
-        @keyframes fadeInAlert { from { opacity: 0; top: 0; } to { opacity: 1; top: 20px; } }
-        @keyframes fadeOutAlert { from { opacity: 1; top: 20px; } to { opacity: 0; top: 0; } }
-
-
-        .message-alert.success { background: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
-        .message-alert.error { background: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
+/* --- General Styles & Variables --- */
+:root {
+    --primary-color: #3498db;
+    --primary-dark: #2980b9;
+    --primary-light: #aed6f1;
+    --secondary-color: #2c3e50;
+    --secondary-dark: #1f3a55;
+    --accent-color: #e74c3c;
+    --accent-dark: #c0392b;
+    --success-color: #2ecc71;
+    --success-dark: #27ae60;
+    --warning-color: #f39c12;
+    --warning-dark: #d68910;
+    --error-color: var(--accent-color); /* Alias for consistency */
+    --error-dark: var(--accent-dark);
+    --light-bg: #f8f9fa; /* أخف من السابق */
+    --surface-bg: #ffffff;
+    --text-color: #34495e; /* أغمق قليلاً من #333 */
+    --text-muted: #7f8c8d; /* رمادي متوسط */
+    --border-color: #e0e6ed; /* لون حدود أفتح */
+    --font-family-base: 'Cairo', 'Arial', sans-serif;
+    --border-radius-sm: 4px;
+    --border-radius-md: 6px; /* تعديل طفيف */
+    --border-radius-lg: 10px;/* تعديل طفيف */
+    --shadow-xs: 0 1px 3px rgba(0,0,0,0.05);
+    --shadow-sm: 0 3px 10px rgba(0,0,0,0.08);
+    --shadow-md: 0 6px 20px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 30px rgba(0,0,0,0.12);
+    --spacing-unit: 8px;
+    --header-height: 70px; /* قيمة ثابتة لارتفاع الرأسية */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-family-base);
+    line-height: 1.7;
+    color: var(--text-color);
+    direction: rtl;
+    background-color: var(--light-bg);
+    font-size: 16px; /* حجم خط أساسي */
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 calc(var(--spacing-unit) * 2); /* 16px */
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--secondary-color);
+    font-weight: 700;
+    line-height: 1.3;
+}
+h1 { font-size: 2.8rem; }
+h2 { font-size: 2.2rem; }
+h3 { font-size: 1.6rem; }
+
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+a:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+img { max-width: 100%; height: auto; display: block; }
+
+/* --- Header --- */
+.header {
+    background: linear-gradient(135deg, var(--secondary-dark), var(--primary-color));
+    color: white;
+    padding: calc(var(--spacing-unit) * 1.25) 0; /* 10px */
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: var(--shadow-md);
+    transition: background-color 0.3s ease, padding 0.3s ease;
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+}
+.header.scrolled {
+    background: linear-gradient(135deg, rgba(31, 58, 85, 0.98), rgba(52, 152, 219, 0.98));
+    padding: calc(var(--spacing-unit) * 0.75) 0; /* 6px */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.18);
+    height: calc(var(--header-height) - 10px);
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.logo {
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: #ecf0f1;
+}
+
+.main-nav { /* حاوية للقائمة الرئيسية لسهولة التحكم في الاستجابة */ }
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    gap: calc(var(--spacing-unit) * 2); /* 16px */
+}
+
+.nav-menu a {
+    color: white;
+    padding: calc(var(--spacing-unit) * 0.75) var(--spacing-unit); /* 6px 8px */
+    border-radius: var(--border-radius-sm);
+    font-weight: 600;
+    font-size: 0.95rem;
+    position: relative;
+}
+.nav-menu a::after { /* تأثير underline عند المرور */
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -2px;
+    right: 50%;
+    background-color: var(--primary-light);
+    transition: width 0.3s ease, right 0.3s ease;
+}
+.nav-menu a:hover::after, .nav-menu a.active-link::after {
+    width: 100%;
+    right: 0;
+}
+.nav-menu a.active-link {
+    color: var(--primary-light); /* تمييز أوضح للرابط النشط */
+}
+
+.user-actions { display: flex; align-items: center; gap: var(--spacing-unit); }
+
+.user-icon-button {
+    background: none; border: none; color: white; cursor: pointer;
+    font-size: 1.8rem; padding: calc(var(--spacing-unit) * 0.5);
+    border-radius: 50%; transition: background-color 0.2s;
+}
+.user-icon-button:hover { background-color: rgba(255,255,255,0.1); }
+
+.dropdown-menu {
+    position: absolute; top: calc(100% + 10px); left: 0;
+    background: var(--surface-bg); color: var(--text-color);
+    border-radius: var(--border-radius-md); box-shadow: var(--shadow-lg);
+    min-width: 240px; display: none; z-index: 1001; overflow: hidden;
+    animation: fadeInDropdown 0.2s ease-out;
+}
+.dropdown-menu.show { display: block; }
+.dropdown-menu-header { padding: var(--spacing-unit) * 1.5; border-bottom: 1px solid var(--border-color); text-align: center; }
+.dropdown-menu-header strong { font-size: 1rem; color: var(--secondary-color); }
+.dropdown-menu-header small { font-size: 0.8rem; color: var(--text-muted); display: block; }
+.dropdown-menu a {
+    display: flex; align-items: center; gap: var(--spacing-unit);
+    padding: calc(var(--spacing-unit) * 1.25) calc(var(--spacing-unit) * 1.5);
+    color: var(--text-color); border-bottom: 1px solid #f0f0f0; font-size: 0.9rem;
+}
+.dropdown-menu a:last-child { border-bottom: none; }
+.dropdown-menu a:hover { background-color: var(--light-bg); color: var(--primary-dark); }
+.dropdown-menu a i { width: 18px; text-align: center; color: var(--text-muted); font-size: 0.9em; }
+.dropdown-menu a:hover i { color: var(--primary-dark); }
+
+.mobile-nav-toggle {
+    display: none; /* يظهر فقط في استعلامات الوسائط */
+    background: none; border: none; color: white;
+    font-size: 1.6rem; cursor: pointer; padding: var(--spacing-unit);
+}
+
+/* --- Main Content & Hero --- */
+.main-content { margin-top: var(--header-height); }
+.hero {
+    background: linear-gradient(to right bottom, rgba(31, 58, 85, 0.9), rgba(52, 152, 219, 0.9)), url('https://images.unsplash.com/photo-1505373877841-8d25f7d46678?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center/cover;
+    /* صورة خلفية مختلفة ذات طابع احترافي */
+    color: white; padding: 7rem 0; text-align: center;
+}
+.hero-content { max-width: 800px; }
+.hero h1 { font-size: 3.2rem; margin-bottom: var(--spacing-unit) * 1.5; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+.hero p { font-size: 1.25rem; margin-bottom: var(--spacing-unit) * 3; opacity: 0.9; }
+.cta-button {
+    background: var(--accent-color); color: white;
+    padding: calc(var(--spacing-unit) * 1.25) calc(var(--spacing-unit) * 3);
+    border-radius: var(--border-radius-md); font-size: 1.1rem; font-weight: 600;
+    box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
+    display: inline-flex; align-items: center; gap: var(--spacing-unit);
+}
+.cta-button:hover { background: var(--accent-dark); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4); }
+
+/* --- Sections General --- */
+.section { padding: 5rem 0; }
+.section:nth-child(even) { background-color: var(--surface-bg); } /* تباين بين الأقسام */
+.section-title {
+    text-align: center; font-size: 2.5rem;
+    margin-bottom: calc(var(--spacing-unit) * 4); color: var(--secondary-color);
+    position: relative; padding-bottom: var(--spacing-unit) * 1.25;
+}
+.section-title::after {
+    content: ''; position: absolute; bottom: 0; left: 50%;
+    transform: translateX(-50%); width: 70px; height: 3px;
+    background-color: var(--primary-color); border-radius: 2px;
+}
+.sub-section-title {
+    text-align: center; font-size: 1.8rem; color: var(--secondary-color);
+    margin: calc(var(--spacing-unit) * 4) 0 calc(var(--spacing-unit) * 2.5) 0;
+}
+
+
+/* --- Culture & Stories --- */
+.culture-grid, .stories-container { gap: calc(var(--spacing-unit) * 2.5); }
+.culture-card {
+    background: var(--surface-bg); padding: calc(var(--spacing-unit) * 3);
+    border-radius: var(--border-radius-lg); box-shadow: var(--shadow-sm);
+}
+.culture-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-md); }
+.culture-card i {
+    font-size: 2.5rem; color: var(--primary-color); margin-bottom: var(--spacing-unit) * 1.25;
+    width: 60px; height: 60px; line-height: 60px;
+    background-color: rgba(52,152,219,0.08); border-radius: 50%;
+}
+.culture-card h3 { font-size: 1.25rem; margin-bottom: var(--spacing-unit) * 0.75; }
+.culture-card p { font-size: 0.9rem; color: var(--text-muted); }
+.story-card {
+    background: var(--surface-bg); border-left: 4px solid var(--primary-color);
+    box-shadow: var(--shadow-sm);
+}
+.story-card::before { /* Font Awesome quote */
+    content: '\f10d'; font-family: "Font Awesome 6 Free"; font-weight: 900;
+    position: absolute; top: var(--spacing-unit) * 1.5; right: var(--spacing-unit) * 1.5;
+    font-size: 2rem; color: var(--primary-color); opacity: 0.1;
+}
+.story-card p { font-size: 0.95rem; }
+.story-author { margin-top: var(--spacing-unit) * 1.25; font-size: 0.85rem; }
+
+/* --- Jobs Section --- */
+.jobs-section { background: var(--light-bg); }
+.filters { gap: var(--spacing-unit); margin-bottom: var(--spacing-unit) * 2.5; }
+.filter-select {
+    padding: calc(var(--spacing-unit) * 1) calc(var(--spacing-unit) * 1.25);
+    border-radius: var(--border-radius-md); font-size: 0.9rem; min-width: 180px;
+}
+.jobs-grid { gap: calc(var(--spacing-unit) * 2.5); }
+.job-card {
+    background: var(--surface-bg); padding: calc(var(--spacing-unit) * 2.5);
+    border-radius: var(--border-radius-lg); box-shadow: var(--shadow-sm);
+}
+.job-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.job-title { font-size: 1.3rem; margin-bottom: var(--spacing-unit) * 0.5; }
+.job-department { font-size: 0.85rem; margin-bottom: var(--spacing-unit); }
+.job-details { gap: var(--spacing-unit) * 0.75; margin-bottom: var(--spacing-unit); }
+.job-detail { padding: calc(var(--spacing-unit) * 0.4) calc(var(--spacing-unit) * 1); font-size: 0.75rem; }
+.job-description-snippet { font-size: 0.9rem; margin-bottom: var(--spacing-unit) * 1.5; }
+.job-actions .details-btn, .job-actions .apply-btn-in-card {
+    padding: calc(var(--spacing-unit) * 1) calc(var(--spacing-unit) * 1.5);
+    font-size: 0.9rem;
+}
+.no-results-message {
+    grid-column: 1 / -1; /* لتمتد على عرض الشبكة بالكامل */
+    text-align: center;
+    padding: var(--spacing-unit) * 3;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+.general-apply-cta { text-align: center; margin-top: var(--spacing-unit) * 3; }
+
+
+/* --- Contact Section --- */
+.contact-intro { text-align:center; font-size: 1.1rem; color: var(--text-muted); margin-bottom: var(--spacing-unit) * 2; }
+.contact-details { text-align:center; font-size: 1.15rem; }
+.contact-details p { margin-bottom: var(--spacing-unit); }
+.contact-details i { color: var(--primary-color); margin-left: var(--spacing-unit); }
+
+
+/* --- Support Chat --- */
+.support-chat { bottom: 20px; left: 20px; }
+.chat-toggle { width: 60px; height: 60px; font-size: 1.6rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.chat-window {
+    bottom: calc(100% + 10px); /* فوق الزر */
+    width: 350px; max-height: 500px; border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-lg);
+}
+.chat-header { padding: var(--spacing-unit) * 1.25 var(--spacing-unit) * 1.5; border-radius: var(--border-radius-md) var(--border-radius-md) 0 0; }
+.chat-header h4 { font-size: 1rem; }
+.chat-options { padding: var(--spacing-unit) * 0.75; }
+.chat-option { padding: var(--spacing-unit) * 0.75; font-size: 0.85rem; }
+.chat-messages { padding: var(--spacing-unit) * 1.25; background-color: #fdfdfd; }
+.chat-input-area { padding: var(--spacing-unit) * 1.25; gap: var(--spacing-unit) * 0.75; }
+.chat-input { padding: var(--spacing-unit) * 1; border-radius: 18px; }
+#sendChatMessageBtn, #voiceRecognitionBtn { width: 40px; height: 40px; font-size: 1.1rem; }
+.message { padding: calc(var(--spacing-unit) * 0.75) var(--spacing-unit) * 1.25; border-radius: 15px; }
+.message.user { border-bottom-left-radius: var(--border-radius-sm); }
+.message.bot { border-bottom-right-radius: var(--border-radius-sm); }
+
+/* --- Modals General --- */
+.modal { background: rgba(44,62,80,0.75); padding: var(--spacing-unit) * 1.5; }
+.modal-content { padding: calc(var(--spacing-unit) * 2.5); border-radius: var(--border-radius-md); max-width: 500px; }
+.modal-content.large { max-width: 750px; }
+.modal-header { margin-bottom: var(--spacing-unit) * 1.5; padding-bottom: var(--spacing-unit) * 1.25; }
+.modal-header h3 { font-size: 1.4rem; }
+.close-modal-btn { font-size: 1.8rem; top: var(--spacing-unit); left: var(--spacing-unit); }
+.form-group { margin-bottom: var(--spacing-unit) * 1.5; }
+.form-group label { margin-bottom: var(--spacing-unit) * 0.5; font-weight: 500; font-size: 0.9rem; }
+.form-group input[type="text"], .form-group input[type="email"], .form-group input[type="tel"],
+.form-group input[type="password"], .form-group input[type="number"], .form-group input[type="file"],
+.form-group textarea, .form-group select {
+    padding: calc(var(--spacing-unit) * 1); border-radius: var(--border-radius-sm); font-size: 0.95rem;
+}
+.form-group textarea { min-height: 90px; }
+.submit-btn {
+    background: var(--primary-color); padding: calc(var(--spacing-unit) * 1.25) calc(var(--spacing-unit) * 2);
+    font-size: 1rem; border-radius: var(--border-radius-md);
+}
+.submit-btn:hover { background: var(--primary-dark); }
+.form-link { text-align: center; margin-top: var(--spacing-unit) * 1.5; font-size: 0.85rem; }
+.form-link a { font-weight: 600; }
+.form-error-message { display: block; color: var(--accent-dark); font-size: 0.8rem; margin-top: var(--spacing-unit)*0.5; }
+.modal-body-scrollable { max-height: 60vh; overflow-y: auto; padding-right: var(--spacing-unit); } /* For job details content */
+.modal-body-scrollable h4 { margin-top: var(--spacing-unit)*1.5; font-size: 1.1rem; color: var(--secondary-color); }
+.modal-body-scrollable p, .modal-body-scrollable ul { margin-bottom: var(--spacing-unit); font-size: 0.95rem; }
+.modal-body-scrollable ul { padding-right: var(--spacing-unit)*2; }
+
+
+/* --- Global Alert Notification --- */
+#globalAlertContainer {
+    position: fixed;
+    top: calc(var(--header-height) + 10px); /* أسفل الرأسية */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3000;
+    width: auto;
+    max-width: 90%;
+}
+.message-alert {
+    padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 2);
+    margin-bottom: var(--spacing-unit); /* مسافة بين التنبيهات المتعددة */
+    border-radius: var(--border-radius-md);
+    font-weight: 500;
+    text-align: center;
+    box-shadow: var(--shadow-md);
+    opacity: 0;
+    transform: translateY(-20px);
+    animation: slideInFadeAlert 0.4s ease-out forwards, fadeOutAlertLater 0.4s ease-in 4.6s forwards;
+    display: flex; /* لإضافة أيقونة بجانب النص */
+    align-items: center;
+    gap: var(--spacing-unit);
+}
+.message-alert i { font-size: 1.2em; }
+@keyframes slideInFadeAlert { from { opacity: 0; transform: translateY(-20px) translateX(-50%); } to { opacity: 1; transform: translateY(0) translateX(-50%); } }
+@keyframes fadeOutAlertLater { from { opacity: 1; transform: translateY(0) translateX(-50%); } to { opacity: 0; transform: translateY(-20px) translateX(-50%); } }
+
+.message-alert.success { background-color: var(--success-color); color: white; border: 1px solid var(--success-dark); }
+.message-alert.error { background-color: var(--error-color); color: white; border: 1px solid var(--error-dark); }
+.message-alert.info { background-color: var(--primary-color); color: white; border: 1px solid var(--primary-dark); }
+
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 992px) {
+    .main-nav { display: none; /* القائمة الرئيسية تُخفى وتُظهر عبر زر الموبايل */ }
+    .main-nav.mobile-active { /* عندما تكون نشطة على الموبايل */
+        display: flex;
+        position: absolute;
+        top: var(--header-height);
+        right: 0;
+        background: var(--secondary-dark);
+        width: 100%;
+        box-shadow: var(--shadow-md);
+        padding: var(--spacing-unit) 0;
+    }
+    .main-nav.mobile-active .nav-menu {
+        flex-direction: column;
+        width: 100%;
+        align-items: center;
+    }
+    .main-nav.mobile-active .nav-menu a {
+        padding: var(--spacing-unit) * 1.5;
+        width: 100%;
+        text-align: center;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .main-nav.mobile-active .nav-menu li:last-child a { border-bottom: none;}
+
+    .mobile-nav-toggle { display: block; }
+    .filters { justify-content: flex-start; }
+}
+
+@media (max-width: 768px) {
+    body { font-size: 15px; }
+    h1 { font-size: 2.2rem; }
+    h2 { font-size: 1.8rem; }
+    .logo { font-size: 1.5rem; }
+    .user-icon-button { font-size: 1.5rem; }
+    .hero { padding: 5rem 0; }
+    .hero h1 { font-size: 2.5rem; }
+    .hero p { font-size: 1.1rem; }
+    .section { padding: 4rem 0; }
+    .section-title { font-size: 2rem; margin-bottom: var(--spacing-unit) * 3; }
+    .culture-grid, .stories-container, .jobs-grid { grid-template-columns: 1fr; gap: var(--spacing-unit) * 2; }
+    .filters { flex-direction: column; align-items: stretch; }
+    .filter-select { width: 100%; }
+    .job-card { padding: var(--spacing-unit) * 2; }
+    .chat-window { width: 300px; max-height: 450px; }
+}
+
+@media (max-width: 480px) {
+    body { font-size: 14px; }
+    .nav-container, .container { padding: 0 var(--spacing-unit) * 1.5; }
+    .hero { padding: 4rem 0; }
+    .hero h1 { font-size: 2rem; }
+    .hero p { font-size: 1rem; }
+    .section { padding: 3rem 0; }
+    .section-title { font-size: 1.7rem; }
+    .cta-button { padding: var(--spacing-unit) * 1.25 var(--spacing-unit) * 2.5; font-size: 1rem; }
+    .culture-card, .story-card, .job-card { padding: var(--spacing-unit) * 2; }
+    .culture-card i { font-size: 2.2rem; width: 50px; height: 50px; line-height: 50px; }
+    .culture-card h3 { font-size: 1.15rem; }
+    .support-chat { bottom: 15px; left: 15px; }
+    .chat-toggle { width: 55px; height: 55px; font-size: 1.5rem; }
+    .chat-window { width: calc(100vw - 30px); left: 0; bottom: calc(100% + 5px); border-radius: var(--border-radius-md); } /* يعدل ليظهر فوق الزر عند النقر */
+    .modal-content { padding: var(--spacing-unit) * 2; }
+    .modal-header h3 { font-size: 1.2rem; }
+    .close-modal-btn { font-size: 1.5rem; top: var(--spacing-unit); left: var(--spacing-unit); }
+}

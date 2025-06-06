@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ميس للمنتجات الطبية - الموارد البشرية</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>ميس للمنتجات الطبية - الموارد البشرية والتوظيف</title>
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts (Cairo) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,22 +16,27 @@
     <header class="header">
         <div class="nav-container container">
             <a href="#home" class="logo">ميس للمنتجات الطبية</a>
-            <nav>
+            <nav class="main-nav">
                 <ul class="nav-menu">
-                    <li><a href="#home">الرئيسية</a></li>
+                    <li><a href="#home" class="active-link">الرئيسية</a></li>
                     <li><a href="#culture">ثقافة العمل</a></li>
                     <li><a href="#jobs">الوظائف</a></li>
                     <li><a href="#contact">تواصل معنا</a></li>
                 </ul>
             </nav>
-            <div class="user-menu">
-                <i class="fas fa-user-circle user-icon" onclick="toggleUserMenu()"></i>
-                <div class="dropdown" id="userDropdown">
-                    <a href="#" onclick="showLoginModal()">تسجيل الدخول</a>
-                    <a href="#" onclick="showRegisterModal()">إنشاء حساب جديد</a>
-                    <!-- سيتم تحديث هذا عند تسجيل الدخول -->
+            <div class="user-actions">
+                <button class="user-icon-button" id="userMenuButton" aria-label="قائمة المستخدم" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-user-circle"></i>
+                </button>
+                <div class="dropdown-menu" id="userDropdownMenu" role="menu">
+                    <!-- سيتم تحديث هذا بواسطة JavaScript -->
+                    <a href="#" role="menuitem" id="loginMenuLink"><i class="fas fa-sign-in-alt"></i> تسجيل الدخول</a>
+                    <a href="#" role="menuitem" id="registerMenuLink"><i class="fas fa-user-plus"></i> إنشاء حساب</a>
                 </div>
             </div>
+            <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="تبديل القائمة" aria-expanded="false">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
     </header>
 
@@ -67,21 +76,10 @@
                         <h3>السعي للتميز</h3>
                         <p>نلتزم بأعلى معايير الجودة ونسعى للريادة في مجالنا.</p>
                     </div>
-                    <div class="culture-card">
-                        <i class="fas fa-seedling"></i>
-                        <h3>النمو والتطور</h3>
-                        <p>نوفر فرصًا للتعلم المستمر والتطور المهني والشخصي.</p>
-                    </div>
-                    <div class="culture-card">
-                        <i class="fas fa-shield-alt"></i>
-                        <h3>النزاهة والشفافية</h3>
-                        <p>نعمل بأمانة ونلتزم بالشفافية في جميع تعاملاتنا.</p>
-                    </div>
                 </div>
-
-                <h3 style="text-align: center; margin: 4rem 0 2.5rem; color: #2c3e50; font-size: 1.8rem;">لماذا ميس؟</h3>
+                <h3 class="sub-section-title">لماذا تختار ميس؟</h3>
                 <div class="culture-grid">
-                     <div class="culture-card">
+                    <div class="culture-card">
                         <i class="fas fa-briefcase-medical"></i>
                         <h3>تأثير حقيقي</h3>
                         <p>ساهم في تطوير منتجات وحلول طبية تُحدث فرقًا في حياة الناس.</p>
@@ -105,174 +103,165 @@
             <div class="container">
                 <h2 class="section-title">انضم إلى فريقنا</h2>
                 <div class="filters">
-                    <select class="filter-select" id="departmentFilter" onchange="filterJobsDisplay()">
+                    <select class="filter-select" id="departmentFilter" aria-label="تصفية حسب القسم">
                         <option value="">جميع الأقسام</option>
-                        </select>
-                    <select class="filter-select" id="locationFilter" onchange="filterJobsDisplay()">
+                    </select>
+                    <select class="filter-select" id="locationFilter" aria-label="تصفية حسب الموقع">
                         <option value="">جميع المواقع</option>
-                        </select>
-                    <select class="filter-select" id="typeFilter" onchange="filterJobsDisplay()">
+                    </select>
+                    <select class="filter-select" id="typeFilter" aria-label="تصفية حسب نوع الدوام">
                         <option value="">جميع أنواع الدوام</option>
-                        </select>
+                    </select>
                 </div>
-                <div class="jobs-grid" id="jobsGridContainer">
-                    <!-- سيتم تحميل بطاقات الوظائف هنا بواسطة JavaScript -->
-                    <p id="noJobsMessage" style="text-align:center; color: #555; display:none;">لا توجد وظائف تطابق معايير البحث الحالية.</p>
+                <div class="jobs-grid" id="jobsGridContainer" aria-live="polite">
+                    <p id="noJobsMessage" class="no-results-message" style="display:none;">لا توجد وظائف تطابق معايير البحث الحالية.</p>
                 </div>
-                <div style="text-align: center; margin-top: 3rem;">
-                    <button class="cta-button" onclick="showGeneralApplicationModal()">
+                <div class="general-apply-cta">
+                    <button class="cta-button" id="showGeneralApplicationModalBtn">
                         <i class="fas fa-paper-plane"></i> قدم سيرتك الذاتية (تقديم عام)
                     </button>
                 </div>
             </div>
         </section>
 
-         <!-- Contact Us Section (Placeholder) -->
+        <!-- Contact Us Section -->
         <section id="contact" class="section">
             <div class="container">
                 <h2 class="section-title">تواصل معنا</h2>
-                <p style="text-align:center; font-size: 1.1rem; color: #555;">
+                <p class="contact-intro">
                     إذا كانت لديك أي استفسارات أو ترغب في معرفة المزيد عن فرص العمل في ميس للمنتجات الطبية، فلا تتردد في التواصل معنا.
                 </p>
-                <p style="text-align:center; font-size: 1.2rem; color: #3498db; margin-top: 1rem;">
-                    البريد الإلكتروني: <a href="mailto:careers@mays-medical.com" style="color: #3498db;">careers@mays-medical.com</a><br>
-                    الهاتف: <a href="tel:+966112345678" style="color: #3498db;">+966 11 234 5678</a> (مثال)
-                </p>
+                <div class="contact-details">
+                    <p><i class="fas fa-envelope"></i> البريد الإلكتروني: <a href="mailto:careers@mays-medical.com">careers@mays-medical.com</a></p>
+                    <p><i class="fas fa-phone-alt"></i> الهاتف: <a href="tel:+966112345678">+966 11 234 5678</a> (مثال)</p>
+                </div>
             </div>
         </section>
     </main>
 
     <!-- Support Chat -->
     <div class="support-chat">
-        <button class="chat-toggle" onclick="toggleChatWindow()" aria-label="افتح نافذة الدردشة">
+        <button class="chat-toggle" id="chatToggleButton" aria-label="افتح نافذة الدردشة المساعدة" aria-expanded="false" aria-controls="chatWindowContainer">
             <i class="fas fa-headset"></i>
         </button>
-        <div class="chat-window" id="chatWindowContainer">
+        <div class="chat-window" id="chatWindowContainer" role="log" aria-live="polite" style="display:none;">
             <div class="chat-header">
                 <h4>مساعد ميس الذكي</h4>
-                <button onclick="toggleChatWindow()" style="background: none; border: none; color: white; cursor: pointer; font-size: 1.2rem;" aria-label="اغلق نافذة الدردشة">
+                <button id="closeChatButton" class="icon-button" aria-label="إغلاق نافذة الدردشة">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <div class="chat-options">
-                <button class="chat-option active" id="chatModeTextBtn" onclick="selectChatMode('text')">
+                <button class="chat-option active" id="chatModeTextBtn" data-mode="text" aria-pressed="true">
                     <i class="fas fa-keyboard"></i> كتابي
                 </button>
-                <button class="chat-option" id="chatModeVoiceBtn" onclick="selectChatMode('voice')">
+                <button class="chat-option" id="chatModeVoiceBtn" data-mode="voice" aria-pressed="false">
                     <i class="fas fa-microphone-alt"></i> صوتي
                 </button>
             </div>
             <div class="chat-messages" id="chatMessagesContainer">
-                <div class="message bot">
-                    مرحباً بك! أنا مساعدك الذكي من ميس. كيف يمكنني خدمتك اليوم؟ (مثلاً: اسأل عن وظائف شاغرة، ثقافة الشركة، كيفية التقديم)
-                </div>
+                <div class="message bot">مرحباً بك! أنا مساعدك الذكي من ميس. كيف يمكنني خدمتك اليوم؟</div>
             </div>
-            <div class="chat-input-container">
-                <input type="text" class="chat-input" id="chatInputControl" placeholder="اكتب رسالتك..." onkeypress="handleChatInputKeyPress(event)">
-                <button id="sendChatMsgBtn" onclick="sendUserChatMessage()" aria-label="إرسال الرسالة">
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="chatInputControl" placeholder="اكتب رسالتك هنا..." aria-label="أدخل رسالتك النصية">
+                <button class="chat-send-btn" id="sendChatMessageBtn" aria-label="إرسال الرسالة النصية">
                     <i class="fas fa-paper-plane"></i>
                 </button>
-                <button id="voiceRecognitionBtn" style="display: none;" onclick="toggleVoiceRecognition()" aria-label="بدء/إيقاف التسجيل الصوتي">
+                <button class="chat-voice-btn" id="voiceRecognitionBtn" aria-label="بدء التسجيل الصوتي" style="display: none;">
                     <i class="fas fa-microphone"></i>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Modals: Login, Register, Job Details, Application, General Application, Add Job -->
+    <!-- Modals -->
     <!-- Login Modal -->
-    <div class="modal" id="loginModalContainer">
+    <div class="modal" id="loginModalContainer" role="dialog" aria-labelledby="loginModalTitle" aria-modal="true" style="display:none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>تسجيل الدخول</h3>
-                <button class="close-btn" onclick="closeActiveModal()">&times;</button>
+                <h3 id="loginModalTitle">تسجيل الدخول</h3>
+                <button class="close-modal-btn" data-modal-id="loginModalContainer" aria-label="إغلاق نافذة تسجيل الدخول">×</button>
             </div>
-            <form id="loginFormElement" onsubmit="handleUserLogin(event)">
+            <form id="loginFormElement">
                 <div class="form-group">
                     <label for="loginEmailInput">البريد الإلكتروني:</label>
-                    <input type="email" id="loginEmailInput" required>
+                    <input type="email" id="loginEmailInput" required autocomplete="email">
                 </div>
                 <div class="form-group">
                     <label for="loginPasswordInput">كلمة المرور:</label>
-                    <input type="password" id="loginPasswordInput" required>
+                    <input type="password" id="loginPasswordInput" required autocomplete="current-password">
                 </div>
                 <button type="submit" class="submit-btn">تسجيل الدخول</button>
-                <p style="text-align: center; margin-top: 1rem; font-size: 0.9rem;">
-                    ليس لديك حساب؟ <a href="#" onclick="showRegisterModalFromLogin()" style="color: #3498db;">أنشئ حسابًا جديدًا</a>
-                </p>
+                <p class="form-link">ليس لديك حساب؟ <a href="#" id="switchToRegisterLink">أنشئ حسابًا</a></p>
             </form>
         </div>
     </div>
 
     <!-- Register Modal -->
-     <div class="modal" id="registerModalContainer">
+     <div class="modal" id="registerModalContainer" role="dialog" aria-labelledby="registerModalTitle" aria-modal="true" style="display:none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>إنشاء حساب جديد</h3>
-                <button class="close-btn" onclick="closeActiveModal()">&times;</button>
+                <h3 id="registerModalTitle">إنشاء حساب جديد</h3>
+                <button class="close-modal-btn" data-modal-id="registerModalContainer" aria-label="إغلاق نافذة إنشاء الحساب">×</button>
             </div>
-            <form id="registerFormElement" onsubmit="handleUserRegister(event)">
+            <form id="registerFormElement">
                 <div class="form-group">
                     <label for="registerNameInput">الاسم الكامل:</label>
-                    <input type="text" id="registerNameInput" required>
+                    <input type="text" id="registerNameInput" required autocomplete="name">
                 </div>
                 <div class="form-group">
                     <label for="registerEmailInput">البريد الإلكتروني:</label>
-                    <input type="email" id="registerEmailInput" required>
+                    <input type="email" id="registerEmailInput" required autocomplete="email">
                 </div>
                 <div class="form-group">
-                    <label for="registerPhoneInput">رقم الهاتف:</label>
-                    <input type="tel" id="registerPhoneInput">
+                    <label for="registerPhoneInput">رقم الهاتف (اختياري):</label>
+                    <input type="tel" id="registerPhoneInput" autocomplete="tel">
                 </div>
                 <div class="form-group">
                     <label for="registerPasswordInput">كلمة المرور:</label>
-                    <input type="password" id="registerPasswordInput" required minlength="6">
+                    <input type="password" id="registerPasswordInput" required minlength="8" autocomplete="new-password">
                 </div>
                 <div class="form-group">
                     <label for="confirmPasswordInput">تأكيد كلمة المرور:</label>
-                    <input type="password" id="confirmPasswordInput" required minlength="6">
+                    <input type="password" id="confirmPasswordInput" required minlength="8" autocomplete="new-password">
                 </div>
                 <button type="submit" class="submit-btn">إنشاء الحساب</button>
-                 <p style="text-align: center; margin-top: 1rem; font-size: 0.9rem;">
-                    لديك حساب بالفعل؟ <a href="#" onclick="showLoginModalFromRegister()" style="color: #3498db;">سجل الدخول</a>
-                </p>
+                <p class="form-link">لديك حساب بالفعل؟ <a href="#" id="switchToLoginLink">سجل الدخول</a></p>
             </form>
         </div>
     </div>
 
     <!-- Job Details Modal -->
-    <div class="modal" id="jobDetailsModalContainer">
-        <div class="modal-content" style="max-width: 700px;"> <!-- مودال أكبر للتفاصيل -->
+    <div class="modal" id="jobDetailsModalContainer" role="dialog" aria-labelledby="jobDetailsModalTitle" aria-modal="true" style="display:none;">
+        <div class="modal-content large">
             <div class="modal-header">
                 <h3 id="jobDetailsModalTitle">تفاصيل الوظيفة</h3>
-                <button class="close-btn" onclick="closeActiveModal()">&times;</button>
+                <button class="close-modal-btn" data-modal-id="jobDetailsModalContainer" aria-label="إغلاق نافذة تفاصيل الوظيفة">×</button>
             </div>
-            <div id="jobDetailsModalContent" style="line-height: 1.8;">
-                <!-- يتم تحميل محتوى تفاصيل الوظيفة هنا -->
-            </div>
+            <div id="jobDetailsModalContent" class="modal-body-scrollable"></div>
         </div>
     </div>
 
     <!-- Job Application Modal -->
-    <div class="modal" id="jobApplicationModalContainer">
+    <div class="modal" id="jobApplicationModalContainer" role="dialog" aria-labelledby="jobApplicationModalTitleText" aria-modal="true" style="display:none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="jobApplicationModalTitle">التقديم على وظيفة: <span></span></h3>
-                <button class="close-btn" onclick="closeActiveModal()">&times;</button>
+                <h3 id="jobApplicationModalTitleText">التقديم على وظيفة: <span></span></h3>
+                <button class="close-modal-btn" data-modal-id="jobApplicationModalContainer" aria-label="إغلاق نافذة التقديم">×</button>
             </div>
-            <form id="jobApplicationFormElement" onsubmit="handleSpecificJobApplication(event)">
+            <form id="jobApplicationFormElement">
                 <input type="hidden" id="applicationJobIdInput">
                 <div class="form-group">
                     <label for="applyNameInput">الاسم الكامل:</label>
-                    <input type="text" id="applyNameInput" required>
+                    <input type="text" id="applyNameInput" required autocomplete="name">
                 </div>
                 <div class="form-group">
                     <label for="applyEmailInput">البريد الإلكتروني:</label>
-                    <input type="email" id="applyEmailInput" required>
+                    <input type="email" id="applyEmailInput" required autocomplete="email">
                 </div>
                 <div class="form-group">
                     <label for="applyPhoneInput">رقم الهاتف:</label>
-                    <input type="tel" id="applyPhoneInput">
+                    <input type="tel" id="applyPhoneInput" autocomplete="tel">
                 </div>
                 <div class="form-group">
                     <label for="applyExperienceInput">سنوات الخبرة (رقم):</label>
@@ -283,8 +272,9 @@
                     <textarea id="applyCoverLetterTextarea" rows="4"></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="applyResumeFileInput">رفع السيرة الذاتية (PDF, DOC, DOCX):</label>
-                    <input type="file" id="applyResumeFileInput" accept=".pdf,.doc,.docx" required>
+                    <label for="applyResumeFileInput">رفع السيرة الذاتية (PDF, DOC, DOCX - حد أقصى 5MB):</label>
+                    <input type="file" id="applyResumeFileInput" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required>
+                    <small id="applyResumeFileError" class="form-error-message"></small>
                 </div>
                 <button type="submit" class="submit-btn">إرسال الطلب</button>
             </form>
@@ -292,139 +282,53 @@
     </div>
     
     <!-- General Application Modal -->
-    <div class="modal" id="generalApplicationModalContainer">
+    <div class="modal" id="generalApplicationModalContainer" role="dialog" aria-labelledby="generalApplicationModalTitle" aria-modal="true" style="display:none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>تقديم عام للسيرة الذاتية</h3>
-                <button class="close-btn" onclick="closeActiveModal()">&times;</button>
+                <h3 id="generalApplicationModalTitle">تقديم عام للسيرة الذاتية</h3>
+                <button class="close-modal-btn" data-modal-id="generalApplicationModalContainer" aria-label="إغلاق نافذة التقديم العام">×</button>
             </div>
-            <form id="generalApplicationFormElement" onsubmit="handleGeneralCvSubmission(event)">
+            <form id="generalApplicationFormElement">
                  <div class="form-group">
                     <label for="generalApplyNameInput">الاسم الكامل:</label>
-                    <input type="text" id="generalApplyNameInput" required>
+                    <input type="text" id="generalApplyNameInput" required autocomplete="name">
                 </div>
                 <div class="form-group">
                     <label for="generalApplyEmailInput">البريد الإلكتروني:</label>
-                    <input type="email" id="generalApplyEmailInput" required>
+                    <input type="email" id="generalApplyEmailInput" required autocomplete="email">
                 </div>
                 <div class="form-group">
                     <label for="generalApplyPhoneInput">رقم الهاتف:</label>
-                    <input type="tel" id="generalApplyPhoneInput">
+                    <input type="tel" id="generalApplyPhoneInput" autocomplete="tel">
                 </div>
                 <div class="form-group">
                     <label for="generalDesiredFieldSelect">مجال الاهتمام الرئيسي:</label>
                     <select id="generalDesiredFieldSelect" required>
                         <option value="">-- اختر المجال --</option>
-                        </select>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="generalApplyExperienceInput">سنوات الخبرة (رقم):</label>
                     <input type="number" id="generalApplyExperienceInput" min="0" required>
                 </div>
                 <div class="form-group">
-                    <label for="generalApplyBioTextarea">نبذة مختصرة عنك:</label>
+                    <label for="generalApplyBioTextarea">نبذة مختصرة عنك (اختياري):</label>
                     <textarea id="generalApplyBioTextarea" rows="4" placeholder="مهاراتك، طموحاتك..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="generalApplyResumeFileInput">رفع السيرة الذاتية (PDF, DOC, DOCX):</label>
-                    <input type="file" id="generalApplyResumeFileInput" accept=".pdf,.doc,.docx" required>
+                    <label for="generalApplyResumeFileInput">رفع السيرة الذاتية (PDF, DOC, DOCX - حد أقصى 5MB):</label>
+                    <input type="file" id="generalApplyResumeFileInput" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required>
+                     <small id="generalResumeFileError" class="form-error-message"></small>
                 </div>
                 <button type="submit" class="submit-btn">إرسال السيرة الذاتية</button>
             </form>
         </div>
     </div>
 
-    <!-- Admin Panel (Initially hidden) -->
-    <section class="admin-panel" id="adminDashboardPanel" style="display:none;">
-        <div class="container">
-            <h2>لوحة التحكم الإدارية</h2>
-            <div class="admin-tabs">
-                <button class="admin-tab active" data-tab="adminJobsContent">إدارة الوظائف</button>
-                <button class="admin-tab" data-tab="adminApplicationsContent">طلبات التوظيف</button>
-                <button class="admin-tab" data-tab="adminUsersContent">إدارة المستخدمين</button>
-                <button class="admin-tab" data-tab="adminAnalyticsContent">تحليلات عامة</button>
-            </div>
-
-            <div class="admin-content active" id="adminJobsContent">
-                <div style="margin-bottom: 1.5rem; text-align: left;">
-                    <button class="cta-button" onclick="openAddJobModal()" style="background-color: #3498db;">
-                        <i class="fas fa-plus-circle"></i> إضافة وظيفة جديدة
-                    </button>
-                </div>
-                <table class="data-table">
-                    <thead><tr><th>العنوان</th><th>القسم</th><th>الموقع</th><th>تاريخ النشر</th><th>الإجراءات</th></tr></thead>
-                    <tbody id="adminJobsTableBody"></tbody>
-                </table>
-            </div>
-            <div class="admin-content" id="adminApplicationsContent">
-                 <table class="data-table">
-                    <thead><tr><th>المتقدم</th><th>الوظيفة</th><th>تاريخ التقديم</th><th>الحالة</th><th>الإجراءات</th></tr></thead>
-                    <tbody id="adminApplicationsTableBody"></tbody>
-                </table>
-            </div>
-            <div class="admin-content" id="adminUsersContent">
-                <table class="data-table">
-                    <thead><tr><th>الاسم</th><th>البريد</th><th>الهاتف</th><th>تاريخ الانضمام</th><th>النوع</th><th>الإجراءات</th></tr></thead>
-                    <tbody id="adminUsersTableBody"></tbody>
-                </table>
-            </div>
-            <div class="admin-content" id="adminAnalyticsContent">
-                <div class="culture-grid" style="gap: 1.5rem;">
-                    <div class="culture-card"><h3>إجمالي الوظائف</h3><div style="font-size: 2.5rem; color: #3498db; font-weight: bold;" id="analyticsTotalJobs">0</div></div>
-                    <div class="culture-card"><h3>إجمالي الطلبات</h3><div style="font-size: 2.5rem; color: #27ae60; font-weight: bold;" id="analyticsTotalApplications">0</div></div>
-                    <div class="culture-card"><h3>المستخدمون المسجلون</h3><div style="font-size: 2.5rem; color: #e74c3c; font-weight: bold;" id="analyticsTotalUsers">0</div></div>
-                    <div class="culture-card"><h3>طلبات جديدة (آخر 7 أيام)</h3><div style="font-size: 2.5rem; color: #f39c12; font-weight: bold;" id="analyticsNewApplications">0</div></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Add/Edit Job Modal (for Admin) -->
-    <div class="modal" id="addEditJobModalContainer">
-        <div class="modal-content" style="max-width: 650px;">
-            <div class="modal-header">
-                <h3 id="addEditJobModalTitle">إضافة وظيفة جديدة</h3>
-                <button class="close-btn" onclick="closeActiveModal()">&times;</button>
-            </div>
-            <form id="addEditJobFormElement" onsubmit="handleAdminAddEditJob(event)">
-                <input type="hidden" id="editingJobIdInput">
-                <div class="form-group">
-                    <label for="adminJobTitleInput">عنوان الوظيفة:</label>
-                    <input type="text" id="adminJobTitleInput" required>
-                </div>
-                <div class="form-group">
-                    <label for="adminJobDepartmentSelect">القسم:</label>
-                    <select id="adminJobDepartmentSelect" required></select>
-                </div>
-                <div class="form-group">
-                    <label for="adminJobLocationSelect">الموقع:</label>
-                    <select id="adminJobLocationSelect" required></select>
-                </div>
-                <div class="form-group">
-                    <label for="adminJobTypeSelect">نوع الدوام:</label>
-                    <select id="adminJobTypeSelect" required></select>
-                </div>
-                <div class="form-group">
-                    <label for="adminJobDescriptionTextarea">الوصف الكامل:</label>
-                    <textarea id="adminJobDescriptionTextarea" rows="5" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="adminJobResponsibilitiesTextarea">المسؤوليات (افصل بينها بأسطر جديدة):</label>
-                    <textarea id="adminJobResponsibilitiesTextarea" rows="4" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="adminJobQualificationsTextarea">المؤهلات (افصل بينها بأسطر جديدة):</label>
-                    <textarea id="adminJobQualificationsTextarea" rows="4" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="adminJobSkillsTextarea">المهارات (افصل بينها بفواصل ","):</label>
-                    <input type="text" id="adminJobSkillsTextarea" placeholder="مثال: JavaScript, React, SQL" required>
-                </div>
-                <button type="submit" class="submit-btn" id="addEditJobSubmitBtn">إضافة الوظيفة</button>
-            </form>
-        </div>
-    </div>
+    <!-- Alert Notification Placeholder (managed by JS) -->
+    <div id="globalAlertContainer"></div>
 
     <script src="script.js" defer></script>
+    <script src="js/env.local.js"></script>
 </body>
 </html>
