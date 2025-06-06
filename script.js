@@ -344,7 +344,7 @@ function updateUserMenuDisplay() {
         DOMElements.userMenuButton.setAttribute('aria-label', 'قائمة المستخدم');
         DOMElements.userDropdownMenu.innerHTML = `
             <a href="page/login/login.html" id="loginMenuLinkInternal" role="menuitem"><i class="fas fa-sign-in-alt"></i> تسجيل الدخول</a>
-            <a href="page/register/register.html" id="registerMenuLinkInternal" role="menuitem"><i class="fas fa-user-plus"></i> إنشاء حساب</a>
+            <a href="page/signup/signup.html" id="registerMenuLinkInternal" role="menuitem"><i class="fas fa-user-plus"></i> إنشاء حساب</a>
         `;
 /* تم تعطيل منع الانتقال التلقائي لرابط تسجيل الدخول */
         /* تم تعطيل منع الانتقال التلقائي لرابط إنشاء الحساب */
@@ -422,7 +422,9 @@ function openJobApplicationModal(jobId) {
 }
 
 function openGeneralApplicationModal() {
-    if (!DOMElements.generalApplicationFormElement) return;
+    if (!DOMElements.generalApplicationFormElement) {
+        return;
+    }
     const form = DOMElements.generalApplicationFormElement;
     form.reset();
     DOMElements.generalResumeFileError.textContent = '';
