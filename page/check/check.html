@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المصادقة</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/supabase/2.39.0/umd/supabase.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+    body {
+        font-family: 'Arial', sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    
+    .container {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        width: 100%;
+        max-width: 500px;
+        direction: rtl;
+    }
+    
+    .header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .header h1 {
+        color: #333;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .header p {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .user-info {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        display: none;
+    }
+    
+    .user-info h3 {
+        color: #333;
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+    }
+    
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.8rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .info-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    
+    .info-label {
+        font-weight: bold;
+        color: #495057;
+    }
+    
+    .info-value {
+        color: #6c757d;
+        max-width: 60%;
+        text-align: left;
+        direction: ltr;
+    }
+    
+    .status {
+        display: inline-block;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+    
+    .status.confirmed {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .status.unconfirmed {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .loading {
+        text-align: center;
+        padding: 2rem;
+        color: #6c757d;
+    }
+    
+    .loading::after {
+        content: '';
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 10px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .not-authenticated {
+        text-align: center;
+        padding: 2rem;
+        display: none;
+    }
+    
+    .not-authenticated h3 {
+        color: #721c24;
+        margin-bottom: 1rem;
+    }
+    
+    .not-authenticated p {
+        color: #6c757d;
+        margin-bottom: 2rem;
+    }
+    
+    .btn {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.2s;
+        margin: 0.5rem;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+    }
+    
+    .btn.btn-secondary {
+        background: #6c757d;
+    }
+    
+    .btn.btn-danger {
+        background: #dc3545;
+    }
+    
+    .actions {
+        text-align: center;
+        margin-top: 2rem;
+    }
+    
+    .session-info {
+        background: #e7f3ff;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .session-info pre {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 5px;
+        overflow-x: auto;
+        margin-top: 0.5rem;
+        font-size: 0.8rem;
+        direction: ltr;
+        text-align: left;
+    }
+    
+    .error {
+        background: #fee;
+        color: #c33;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        display: none;
+    }
+</style>
+```
+
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>حالة المصادقة</h1>
+            <p>تحقق من حالة تسجيل الدخول ومعلومات المستخدم</p>
+        </div>
+
+```
+    <div id="error-message" class="error"></div>
+    
+    <div id="loading" class="loading">
+        جاري التحقق من المصادقة...
+    </div>
+    
+    <div id="user-info" class="user-info">
+        <h3>معلومات المستخدم</h3>
+        <div class="info-item">
+            <span class="info-label">المعرف:</span>
+            <span class="info-value" id="user-id">-</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">البريد الإلكتروني:</span>
+            <span class="info-value" id="user-email">-</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">الاسم الكامل:</span>
+            <span class="info-value" id="user-name">-</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">حالة التأكيد:</span>
+            <span class="info-value" id="user-status">-</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">تاريخ التسجيل:</span>
+            <span class="info-value" id="user-created">-</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">آخر تسجيل دخول:</span>
+            <span class="info-value" id="user-last-signin">-</span>
+        </div>
+        
+        <div class="session-info">
+            <strong>معلومات الجلسة:</strong>
+            <pre id="session-data"></pre>
+        </div>
+    </div>
+    
+    <div id="not-authenticated" class="not-authenticated">
+        <h3>غير مسجل دخول</h3>
+        <p>يجب عليك تسجيل الدخول أولاً للوصول إلى معلومات المصادقة</p>
+    </div>
+    
+    <div class="actions">
+        <div id="authenticated-actions" style="display: none;">
+            <button class="btn btn-danger" id="logout-btn">تسجيل الخروج</button>
+            <button class="btn btn-secondary" id="refresh-btn">تحديث البيانات</button>
+        </div>
+        
+        <div id="unauthenticated-actions" style="display: none;">
+            <a href="login.html" class="btn">تسجيل الدخول</a>
+            <a href="register.html" class="btn btn-secondary">إنشاء حساب جديد</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // إعداد Supabase
+    const supabaseUrl = 'https://qovspvegmjvslzizibxr.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFvdnNwdmVnbWp2c2x6aXppYnhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyMTU0NjcsImV4cCI6MjA2NDc5MTQ2N30.RNvl_GWX8fWNnGi2Nkq4HPVTYFbhKamfygdvtG55bOY';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    
+    const loading = document.getElementById('loading');
+    const userInfo = document.getElementById('user-info');
+    const notAuthenticated = document.getElementById('not-authenticated');
+    const authenticatedActions = document.getElementById('authenticated-actions');
+    const unauthenticatedActions = document.getElementById('unauthenticated-actions');
+    const errorMessage = document.getElementById('error-message');
+    const logoutBtn = document.getElementById('logout-btn');
+    const refreshBtn = document.getElementById('refresh-btn');
+    
+    // عرض رسالة خطأ
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+    }
+    
+    // إخفاء رسالة الخطأ
+    function hideError() {
+        errorMessage.style.display = 'none';
+    }
+    
+    // تنسيق التاريخ
+    function formatDate(dateString) {
+        if (!dateString) return '-';
+        const date = new Date(dateString);
+        return date.toLocaleString('ar-SA', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+    
+    // عرض معلومات المستخدم
+    function displayUserInfo(user, session) {
+        hideError();
+        
+        document.getElementById('user-id').textContent = user.id || '-';
+        document.getElementById('user-email').textContent = user.email || '-';
+        document.getElementById('user-name').textContent = 
+            user.user_metadata?.full_name || 
+            (user.user_metadata?.first_name + ' ' + user.user_metadata?.last_name) || 
+            '-';
+        
+        const isConfirmed = user.email_confirmed_at ? 'confirmed' : 'unconfirmed';
+        const statusText = user.email_confirmed_at ? 'مؤكد' : 'غير مؤكد';
+        document.getElementById('user-status').innerHTML = 
+            `<span class="status ${isConfirmed}">${statusText}</span>`;
+        
+        document.getElementById('user-created').textContent = formatDate(user.created_at);
+        document.getElementById('user-last-signin').textContent = formatDate(user.last_sign_in_at);
+        
+        // عرض معلومات الجلسة
+        document.getElementById('session-data').textContent = JSON.stringify({
+            access_token: session.access_token ? session.access_token.substring(0, 50) + '...' : 'غير متوفر',
+            token_type: session.token_type || 'غير متوفر',
+            expires_at: session.expires_at ? new Date(session.expires_at * 1000).toLocaleString('ar-SA') : 'غير متوفر',
+            refresh_token: session.refresh_token ? session.refresh_token.substring(0, 50) + '...' : 'غير متوفر'
+        }, null, 2);
+        
+        // إظهار/إخفاء العناصر
+        loading.style.display = 'none';
+        userInfo.style.display = 'block';
+        notAuthenticated.style.display = 'none';
+        authenticatedActions.style.display = 'block';
+        unauthenticatedActions.style.display = 'none';
+    }
+    
+    // عرض حالة عدم المصادقة
+    function displayNotAuthenticated() {
+        hideError();
+        loading.style.display = 'none';
+        userInfo.style.display = 'none';
+        notAuthenticated.style.display = 'block';
+        authenticatedActions.style.display = 'none';
+        unauthenticatedActions.style.display = 'block';
+    }
+    
+    // التحقق من حالة المصادقة
+    async function checkAuthStatus() {
+        try {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            
+            if (error) {
+                throw error;
+            }
+            
+            if (session && session.user) {
+                displayUserInfo(session.user, session);
+            } else {
+                displayNotAuthenticated();
+            }
+        } catch (error) {
+            console.error('خطأ في التحقق من المصادقة:', error);
+            showError('حدث خطأ في التحقق من حالة المصادقة');
+            displayNotAuthenticated();
+        }
+    }
+    
+    // تسجيل الخروج
+    async function logout() {
+        try {
+            logoutBtn.disabled = true;
+            logoutBtn.textContent = 'جاري تسجيل الخروج...';
+            
+            const { error } = await supabase.auth.signOut();
+            
+            if (error) {
+                throw error;
+            }
+            
+            // إعادة توجيه إلى صفحة تسجيل الدخول
+            window.location.href = 'login.html';
+            
+        } catch (error) {
+            console.error('خطأ في تسجيل الخروج:', error);
+            showError('حدث خطأ في تسجيل الخروج');
+            logoutBtn.disabled = false;
+            logoutBtn.textContent = 'تسجيل الخروج';
+        }
+    }
+    
+    // تحديث البيانات
+    async function refreshData() {
+        refreshBtn.disabled = true;
+        refreshBtn.textContent = 'جاري التحديث...';
+        loading.style.display = 'block';
+        userInfo.style.display = 'none';
+        
+        await checkAuthStatus();
+        
+        refreshBtn.disabled = false;
+        refreshBtn.textContent = 'تحديث البيانات';
+    }
+    
+    // معالجات الأحداث
+    logoutBtn.addEventListener('click', logout);
+    refreshBtn.addEventListener('click', refreshData);
+    
+    // مراقبة تغييرات حالة المصادقة
+    supabase.auth.onAuthStateChange((event, session) => {
+        console.log('تغيير حالة المصادقة:', event, session);
+        
+        if (event === 'SIGNED_IN' && session) {
+            displayUserInfo(session.user, session);
+        } else if (event === 'SIGNED_OUT') {
+            displayNotAuthenticated();
+        } else if (event === 'TOKEN_REFRESHED' && session) {
+            displayUserInfo(session.user, session);
+        }
+    });
+    
+    // التحقق الأولي
+    checkAuthStatus();
+</script>
+
+</body>
+</html>
