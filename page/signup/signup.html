@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إنشاء حساب جديد</title>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <title>التسجيل الجديد</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/supabase/2.39.0/umd/supabase.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -12,373 +13,464 @@
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
+    body {
+        font-family: 'Arial', sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    
+    .container {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        width: 100%;
+        max-width: 450px;
+        direction: rtl;
+    }
+    
+    .header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .header h1 {
+        color: #333;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .header p {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #333;
+        font-weight: bold;
+    }
+    
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="password"] {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+        direction: ltr;
+        text-align: right;
+    }
+    
+    .form-group input[type="text"]:focus,
+    .form-group input[type="email"]:focus,
+    .form-group input[type="password"]:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+    
+    .form-group input[type="text"].error,
+    .form-group input[type="email"].error,
+    .form-group input[type="password"].error {
+        border-color: #dc3545;
+    }
+    
+    .form-row {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .form-row .form-group {
+        flex: 1;
+    }
+    
+    .password-strength {
+        margin-top: 0.5rem;
+        font-size: 0.8rem;
+        padding: 0.3rem 0;
+    }
+    
+    .strength-weak { 
+        color: #e74c3c; 
+    }
+    .strength-medium { 
+        color: #f39c12; 
+    }
+    .strength-strong { 
+        color: #27ae60; 
+    }
+    
+    .input-error {
+        color: #dc3545;
+        font-size: 0.8rem;
+        margin-top: 0.3rem;
+        display: none;
+    }
+    
+    .btn {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+    }
+    
+    .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .links {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+    
+    .links a {
+        color: #667eea;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+    
+    .links a:hover {
+        text-decoration: underline;
+    }
+    
+    .error {
+        background: #fee;
+        color: #c33;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        display: none;
+    }
+    
+    .success {
+        background: #efe;
+        color: #3c3;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        display: none;
+    }
+    
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+        width: auto;
+    }
+    
+    .checkbox-group label {
+        font-weight: normal;
+        font-size: 0.9rem;
+        margin-bottom: 0;
+    }
+</style>
+```
 
-        .container {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .logo {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .logo h1 {
-            color: #333;
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #555;
-            font-weight: 500;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e1e5e9;
-            border-radius: 5px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-            direction: ltr;
-            text-align: left;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .password-strength {
-            margin-top: 0.5rem;
-            font-size: 12px;
-        }
-
-        .strength-bar {
-            height: 4px;
-            background-color: #e1e5e9;
-            border-radius: 2px;
-            margin-top: 0.25rem;
-            overflow: hidden;
-        }
-
-        .strength-fill {
-            height: 100%;
-            width: 0%;
-            transition: all 0.3s;
-            border-radius: 2px;
-        }
-
-        .strength-weak { background-color: #dc3545; width: 25%; }
-        .strength-fair { background-color: #ffc107; width: 50%; }
-        .strength-good { background-color: #17a2b8; width: 75%; }
-        .strength-strong { background-color: #28a745; width: 100%; }
-
-        .btn {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: transform 0.2s;
-            margin-bottom: 1rem;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .link {
-            color: #667eea;
-            text-decoration: none;
-        }
-
-        .link:hover {
-            text-decoration: underline;
-        }
-
-        .message {
-            padding: 10px;
-            margin-bottom: 1rem;
-            border-radius: 5px;
-            display: none;
-        }
-
-        .message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .message.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1rem;
-            font-size: 14px;
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            margin-left: 8px;
-            width: auto;
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 1.5rem;
-                margin: 10px;
-            }
-            
-            .logo h1 {
-                font-size: 1.5rem;
-            }
-        }
-    </style>
 </head>
 <body>
     <div class="container">
-        <div class="logo">
+        <div class="header">
             <h1>إنشاء حساب جديد</h1>
-            <p>انضم إلينا اليوم</p>
+            <p>املأ البيانات التالية لإنشاء حسابك</p>
         </div>
 
-        <div id="message" class="message"></div>
-
-        <form id="registerForm">
+```
+    <div id="error-message" class="error"></div>
+    <div id="success-message" class="success"></div>
+    
+    <form id="register-form">
+        <div class="form-row">
             <div class="form-group">
-                <label for="fullName">الاسم الكامل</label>
-                <input type="text" id="fullName" name="fullName" required>
+                <label for="firstName">الاسم الأول</label>
+                <input type="text" id="firstName" required placeholder="محمد">
             </div>
-
+            
             <div class="form-group">
-                <label for="email">البريد الإلكتروني</label>
-                <input type="email" id="email" name="email" required>
+                <label for="lastName">الاسم الأخير</label>
+                <input type="text" id="lastName" required placeholder="أحمد">
             </div>
-
-            <div class="form-group">
-                <label for="password">كلمة المرور</label>
-                <input type="password" id="password" name="password" required>
-                <div class="password-strength">
-                    <div class="strength-text">قوة كلمة المرور: <span id="strengthText">ضعيفة</span></div>
-                    <div class="strength-bar">
-                        <div id="strengthFill" class="strength-fill"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="confirmPassword">تأكيد كلمة المرور</label>
-                <input type="password" id="confirmPassword" name="confirmPassword" required>
-            </div>
-
-            <div class="checkbox-group">
-                <input type="checkbox" id="terms" name="terms" required>
-                <label for="terms">أوافق على <a href="#" class="link">الشروط والأحكام</a></label>
-            </div>
-
-            <button type="submit" class="btn" id="registerBtn">إنشاء الحساب</button>
-        </form>
-
-        <div class="text-center">
-            <p>لديك حساب بالفعل؟ <a href="login.html" class="link">تسجيل الدخول</a></p>
         </div>
+        
+        <div class="form-group">
+            <label for="email">البريد الإلكتروني</label>
+            <input type="email" id="email" required placeholder="example@domain.com">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">كلمة المرور</label>
+            <input type="password" id="password" required placeholder="********">
+            <div id="password-strength" class="password-strength"></div>
+        </div>
+        
+        <div class="form-group">
+            <label for="confirmPassword">تأكيد كلمة المرور</label>
+            <input type="password" id="confirmPassword" required placeholder="********">
+        </div>
+        
+        <div class="checkbox-group">
+            <input type="checkbox" id="terms" required>
+            <label for="terms">أوافق على <a href="#" style="color: #667eea;">الشروط والأحكام</a></label>
+        </div>
+        
+        <button type="submit" class="btn" id="register-btn">إنشاء الحساب</button>
+    </form>
+    
+    <div class="links">
+        <a href="login.html">لديك حساب بالفعل؟ سجل دخولك</a>
     </div>
+</div>
 
-    <script>
-        // إعداد Supabase
-        const { createClient } = supabase;
-        const supabaseUrl = 'https://qovspvegmjvslzizibxr.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFvdnNwdmVnbWp2c2x6aXppYnhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyMTU0NjcsImV4cCI6MjA2NDc5MTQ2N30.RNvl_GWX8fWNnGi2Nkq4HPVTYFbhKamfygdvtG55bOY';
-        const supabaseClient = createClient(supabaseUrl, supabaseKey);
-
-        // عناصر النموذج
-        const registerForm = document.getElementById('registerForm');
-        const registerBtn = document.getElementById('registerBtn');
-        const messageDiv = document.getElementById('message');
-        const passwordInput = document.getElementById('password');
-        const confirmPasswordInput = document.getElementById('confirmPassword');
-        const strengthText = document.getElementById('strengthText');
-        const strengthFill = document.getElementById('strengthFill');
-
-        // دالة لعرض الرسائل
-        function showMessage(message, type) {
-            messageDiv.textContent = message;
-            messageDiv.className = `message ${type}`;
-            messageDiv.style.display = 'block';
-            
-            if (type === 'success') {
-                setTimeout(() => {
-                    messageDiv.style.display = 'none';
-                }, 10000);
-            } else {
-                setTimeout(() => {
-                    messageDiv.style.display = 'none';
-                }, 5000);
-            }
+<script>
+    // إعداد Supabase
+    const supabaseUrl = 'https://qovspvegmjvslzizibxr.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFvdnNwdmVnbWp2c2x6aXppYnhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyMTU0NjcsImV4cCI6MjA2NDc5MTQ2N30.RNvl_GWX8fWNnGi2Nkq4HPVTYFbhKamfygdvtG55bOY';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    
+    const registerForm = document.getElementById('register-form');
+    const registerBtn = document.getElementById('register-btn');
+    const errorMessage = document.getElementById('error-message');
+    const successMessage = document.getElementById('success-message');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const passwordStrength = document.getElementById('password-strength');
+    
+    // إخفاء الرسائل
+    function hideMessages() {
+        errorMessage.style.display = 'none';
+        successMessage.style.display = 'none';
+    }
+    
+    // عرض رسالة خطأ
+    function showError(message) {
+        hideMessages();
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+    }
+    
+    // عرض رسالة نجاح
+    function showSuccess(message) {
+        hideMessages();
+        successMessage.textContent = message;
+        successMessage.style.display = 'block';
+    }
+    
+    // فحص قوة كلمة المرور
+    function checkPasswordStrength(password) {
+        if (!password) {
+            passwordStrength.textContent = '';
+            return;
         }
-
-        // دالة لتقييم قوة كلمة المرور
-        function checkPasswordStrength(password) {
-            let score = 0;
-            let feedback = [];
-
-            if (password.length >= 8) score++;
-            else feedback.push('8 أحرف على الأقل');
-
-            if (/[a-z]/.test(password)) score++;
-            else feedback.push('حرف صغير واحد على الأقل');
-
-            if (/[A-Z]/.test(password)) score++;
-            else feedback.push('حرف كبير واحد على الأقل');
-
-            if (/[0-9]/.test(password)) score++;
-            else feedback.push('رقم واحد على الأقل');
-
-            if (/[^A-Za-z0-9]/.test(password)) score++;
-            else feedback.push('رمز خاص واحد على الأقل');
-
-            const strengths = ['ضعيفة جداً', 'ضعيفة', 'متوسطة', 'جيدة', 'قوية'];
-            const classes = ['strength-weak', 'strength-weak', 'strength-fair', 'strength-good', 'strength-strong'];
-
-            return {
-                score: score,
-                text: strengths[score],
-                class: classes[score],
-                feedback: feedback
-            };
+        
+        let strength = 0;
+        let feedback = '';
+        let suggestions = [];
+        
+        // معايير القوة
+        if (password.length >= 8) {
+            strength++;
+        } else {
+            suggestions.push('8 أحرف على الأقل');
         }
-
-        // مراقبة تغيير كلمة المرور
-        passwordInput.addEventListener('input', (e) => {
-            const password = e.target.value;
-            const strength = checkPasswordStrength(password);
-            
-            strengthText.textContent = strength.text;
-            strengthFill.className = `strength-fill ${strength.class}`;
-        });
-
-        // التحقق من تطابق كلمات المرور
-        confirmPasswordInput.addEventListener('input', (e) => {
-            const password = passwordInput.value;
-            const confirmPassword = e.target.value;
-            
-            if (confirmPassword && password !== confirmPassword) {
-                e.target.style.borderColor = '#dc3545';
-            } else {
-                e.target.style.borderColor = '#e1e5e9';
+        
+        if (/[a-z]/.test(password)) {
+            strength++;
+        } else {
+            suggestions.push('حرف صغير');
+        }
+        
+        if (/[A-Z]/.test(password)) {
+            strength++;
+        } else {
+            suggestions.push('حرف كبير');
+        }
+        
+        if (/[0-9]/.test(password)) {
+            strength++;
+        } else {
+            suggestions.push('رقم');
+        }
+        
+        if (/[^A-Za-z0-9]/.test(password)) {
+            strength++;
+        } else {
+            suggestions.push('رمز خاص');
+        }
+        
+        // تحديد مستوى القوة
+        if (strength < 3) {
+            feedback = 'ضعيفة';
+            passwordStrength.className = 'password-strength strength-weak';
+            if (suggestions.length > 0) {
+                feedback += ' (يحتاج: ' + suggestions.slice(0, 2).join(', ') + ')';
             }
-        });
-
-        // معالج التسجيل
-        registerForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const fullName = document.getElementById('fullName').value;
-            const email = document.getElementById('email').value;
-            const password = passwordInput.value;
-            const confirmPassword = confirmPasswordInput.value;
-            const terms = document.getElementById('terms').checked;
-
-            // التحقق من تطابق كلمات المرور
-            if (password !== confirmPassword) {
-                showMessage('كلمات المرور غير متطابقة', 'error');
-                return;
-            }
-
-            // التحقق من قوة كلمة المرور
-            const strength = checkPasswordStrength(password);
-            if (strength.score < 3) {
-                showMessage('كلمة المرور ضعيفة جداً. يرجى استخدام كلمة مرور أقوى', 'error');
-                return;
-            }
-
-            // التحقق من الموافقة على الشروط
-            if (!terms) {
-                showMessage('يجب الموافقة على الشروط والأحكام', 'error');
-                return;
-            }
-
-            registerBtn.disabled = true;
-            registerBtn.textContent = 'جاري إنشاء الحساب...';
-
-            try {
-                const { data, error } = await supabaseClient.auth.signUp({
-                    email: email,
-                    password: password,
-                    options: {
-                        data: {
-                            full_name: fullName
-                        }
+        } else if (strength < 4) {
+            feedback = 'متوسطة';
+            passwordStrength.className = 'password-strength strength-medium';
+        } else {
+            feedback = 'قوية';
+            passwordStrength.className = 'password-strength strength-strong';
+        }
+        
+        passwordStrength.textContent = `قوة كلمة المرور: ${feedback}`;
+    }
+    
+    // التحقق من كلمة المرور
+    passwordInput.addEventListener('input', (e) => {
+        checkPasswordStrength(e.target.value);
+    });
+    
+    // التحقق من تطابق كلمة المرور
+    function validatePasswordMatch() {
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+        
+        if (confirmPassword && password !== confirmPassword) {
+            confirmPasswordInput.setCustomValidity('كلمة المرور غير متطابقة');
+            return false;
+        } else {
+            confirmPasswordInput.setCustomValidity('');
+            return true;
+        }
+    }
+    
+    confirmPasswordInput.addEventListener('input', validatePasswordMatch);
+    passwordInput.addEventListener('input', () => {
+        if (confirmPasswordInput.value) {
+            validatePasswordMatch();
+        }
+    });
+    
+    // معالج التسجيل
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const firstName = document.getElementById('firstName').value.trim();
+        const lastName = document.getElementById('lastName').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const termsAccepted = document.getElementById('terms').checked;
+        
+        // التحقق من الشروط والأحكام
+        if (!termsAccepted) {
+            showError('يجب الموافقة على الشروط والأحكام');
+            return;
+        }
+        
+        // التحقق من الحقول المطلوبة
+        if (!firstName || !lastName || !email || !password) {
+            showError('يرجى ملء جميع الحقول المطلوبة');
+            return;
+        }
+        
+        // التحقق من صحة البريد الإلكتروني
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showError('يرجى إدخال بريد إلكتروني صحيح');
+            return;
+        }
+        
+        // التحقق من تطابق كلمة المرور
+        if (password !== confirmPassword) {
+            showError('كلمة المرور غير متطابقة');
+            return;
+        }
+        
+        // التحقق من قوة كلمة المرور
+        if (password.length < 6) {
+            showError('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+            return;
+        }
+        
+        registerBtn.disabled = true;
+        registerBtn.textContent = 'جاري إنشاء الحساب...';
+        
+        try {
+            const { data, error } = await supabase.auth.signUp({
+                email: email,
+                password: password,
+                options: {
+                    data: {
+                        first_name: firstName,
+                        last_name: lastName,
+                        full_name: firstName + ' ' + lastName
                     }
-                });
-
-                if (error) {
-                    throw error;
                 }
-
-                if (data.user) {
-                    showMessage('تم إنشاء الحساب بنجاح! تم إرسال رسالة تأكيد إلى بريدك الإلكتروني', 'success');
-                    
-                    setTimeout(() => {
-                        window.location.href = 'verify.html';
-                    }, 3000);
-                }
-
-            } catch (error) {
-                let errorMessage = 'حدث خطأ أثناء إنشاء الحساب';
-                
-                if (error.message.includes('User already registered')) {
-                    errorMessage = 'البريد الإلكتروني مسجل بالفعل';
-                } else if (error.message.includes('Password should be at least 6 characters')) {
-                    errorMessage = 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
-                } else if (error.message.includes('Invalid email')) {
-                    errorMessage = 'البريد الإلكتروني غير صالح';
-                }
-                
-                showMessage(errorMessage, 'error');
-            } finally {
-                registerBtn.disabled = false;
-                registerBtn.textContent = 'إنشاء الحساب';
+            });
+            
+            if (error) {
+                throw error;
             }
-        });
-    </script>
+            
+            if (data.user && !data.user.email_confirmed_at) {
+                showSuccess('تم إنشاء الحساب بنجاح! تحقق من بريدك الإلكتروني لتأكيد الحساب');
+            } else {
+                showSuccess('تم إنشاء الحساب وتأكيده بنجاح!');
+            }
+            
+            // مسح النموذج
+            registerForm.reset();
+            passwordStrength.textContent = '';
+            
+            // توجيه المستخدم إلى صفحة تسجيل الدخول
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 2500);
+            
+        } catch (error) {
+            console.error('خطأ في التسجيل:', error);
+            let errorMsg = 'حدث خطأ في إنشاء الحساب';
+            
+            if (error.message.includes('User already registered')) {
+                errorMsg = 'هذا البريد الإلكتروني مسجل بالفعل';
+            } else if (error.message.includes('Password should be at least 6 characters')) {
+                errorMsg = 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+            } else if (error.message.includes('Unable to validate email address')) {
+                errorMsg = 'عنوان البريد الإلكتروني غير صحيح';
+            } else if (error.message.includes('Invalid email')) {
+                errorMsg = 'البريد الإلكتروني غير صحيح';
+            } else if (error.message.includes('Signup is disabled')) {
+                errorMsg = 'التسجيل الجديد غير متاح حالياً';
+            } else if (error.message.includes('Email rate limit exceeded')) {
+                errorMsg = 'تم تجاوز حد إرسال الرسائل، حاول مرة أخرى لاحقاً';
+            }
+            
+            showError(errorMsg);
+        } finally {
+            registerBtn.disabled = false;
+            registerBtn.textContent = 'إنشاء الحساب';
+        }
+    });
+</script>
+
 </body>
 </html>
