@@ -3,31 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل دخول الإدارة - ميس</title>
+    <title>إنشاء حساب جديد - ميس</title>
     <!-- Font Awesome for icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" rel="stylesheet">
     <!-- Google Fonts (Cairo) -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Custom Login Stylesheet -->
-    <link rel="stylesheet" href="login.css">
+    <!-- Custom Register Stylesheet -->
+    <link rel="stylesheet" href="register.css">
 </head>
 <body>
 
     <div class="login-container">
         <div class="login-header">
             <a href="../../index.html" class="logo">ميس للمنتجات الطبية</a>
-            <h2>لوحة تحكم الإدارة</h2>
-            <p>يرجى تسجيل الدخول للمتابعة</p>
+            <h2>إنشاء حساب جديد</h2>
+            <p>يرجى تعبئة البيانات لإنشاء حساب</p>
         </div>
         
-        <form id="adminLoginForm" novalidate>
+        <form id="registerForm" novalidate>
             <div id="errorMessage" class="error-message" role="alert"></div>
+            
+            <div class="form-group">
+                <label for="nameInput">الاسم الكامل</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="nameInput" placeholder="الاسم الكامل" required autocomplete="name">
+                </div>
+            </div>
             
             <div class="form-group">
                 <label for="emailInput">البريد الإلكتروني</label>
                 <div class="input-wrapper">
                     <i class="fas fa-envelope"></i>
-                    <input type="email" id="emailInput" placeholder="admin@login.com" required autocomplete="email">
+                    <input type="email" id="emailInput" placeholder="your@email.com" required autocomplete="email">
                 </div>
             </div>
             
@@ -35,22 +43,22 @@
                 <label for="passwordInput">كلمة المرور</label>
                 <div class="input-wrapper">
                     <i class="fas fa-lock"></i>
-                    <input type="password" id="passwordInput" placeholder="•••••••••" required autocomplete="current-password">
+                    <input type="password" id="passwordInput" placeholder="•••••••••" required autocomplete="new-password">
                 </div>
             </div>
             
             <button type="submit" class="btn-login">
-                <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
+                <i class="fas fa-user-plus"></i> إنشاء الحساب
             </button>
         </form>
         
-<div class="login-footer">
-    <a href="../../index.html">العودة إلى الموقع الرئيسي</a>
-    <span style="margin: 0 8px;">|</span>
-    <a href="../register/register.html">إنشاء حساب جديد</a>
-</div>
+        <div class="login-footer">
+            <a href="../../index.html">العودة إلى الموقع الرئيسي</a>
+            <span style="margin: 0 8px;">|</span>
+            <a href="../login/login.html">تسجيل الدخول</a>
+        </div>
     </div>
 
-    <script src="login.js" defer></script>
+    <script src="register.js" defer></script>
 </body>
 </html>

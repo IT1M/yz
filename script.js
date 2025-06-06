@@ -344,10 +344,10 @@ function updateUserMenuDisplay() {
         DOMElements.userMenuButton.setAttribute('aria-label', 'قائمة المستخدم');
         DOMElements.userDropdownMenu.innerHTML = `
             <a href="page/login/login.html" id="loginMenuLinkInternal" role="menuitem"><i class="fas fa-sign-in-alt"></i> تسجيل الدخول</a>
-            <a href="#" id="registerMenuLinkInternal" role="menuitem"><i class="fas fa-user-plus"></i> إنشاء حساب</a>
+            <a href="page/register/register.html" id="registerMenuLinkInternal" role="menuitem"><i class="fas fa-user-plus"></i> إنشاء حساب</a>
         `;
 /* تم تعطيل منع الانتقال التلقائي لرابط تسجيل الدخول */
-        document.getElementById('registerMenuLinkInternal')?.addEventListener('click', (e) => { e.preventDefault(); showRegisterModal(); });
+        /* تم تعطيل منع الانتقال التلقائي لرابط إنشاء الحساب */
     }
 }
 
