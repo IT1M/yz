@@ -23,6 +23,10 @@
 
 /* --- Base & Layout --- */
 * { margin: 0; padding: 0; box-sizing: border-box; }
+html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+}
 body {
     font-family: 'Cairo', 'Arial', sans-serif;
     line-height: 1.6;
@@ -30,6 +34,9 @@ body {
     background-color: var(--light-bg);
     direction: rtl;
     overflow-x: hidden;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -webkit-touch-callout: none;
 }
 .dashboard-layout { display: flex; min-height: 100vh; }
 
@@ -287,8 +294,22 @@ table small { color: var(--text-muted); font-size: 0.8rem; }
         z-index: 1001;
         width: 260px;
         transition: right var(--transition-speed) ease;
+        box-shadow: none;
+        background-color: var(--sidebar-bg);
+        will-change: right;
     }
-    .sidebar.open { right: 0; box-shadow: var(--shadow-md); }
+    .sidebar.open {
+        right: 0;
+        box-shadow: var(--shadow-md);
+    }
+    .sidebar::after {
+        content: '';
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(44,62,80,0.25);
+        z-index: 1000;
+    }
     .main-content-area { width: 100%; }
     .mobile-menu-toggle { display: block; }
     .charts-container { grid-template-columns: 1fr; }
@@ -301,7 +322,7 @@ table small { color: var(--text-muted); font-size: 0.8rem; }
     .responsive-table table { min-width: 600px; }
     .responsive-table thead { display: none; }
     .responsive-table tr { display: block; border: 1px solid var(--border-color); margin-bottom: 15px; border-radius: var(--border-radius); padding: 15px; background: #fff; }
-    .responsive-table td { display: flex; justify-content: space-between; align-items: center; border: none; padding: 10px 0; border-bottom: 1px dashed var(--border-color); }
+    .responsive-table td { display: flex; justify-content: space-between; align-items: center; border: none; padding: 14px 0; border-bottom: 1px dashed var(--border-color); font-size: 1rem; }
     .responsive-table td:last-child { border-bottom: 0; }
     .responsive-table td:before {
         content: attr(data-label);
@@ -309,15 +330,17 @@ table small { color: var(--text-muted); font-size: 0.8rem; }
         color: var(--secondary-color);
         padding-left: 10px;
         min-width: 110px;
+        font-size: 0.98rem;
     }
-    .action-buttons { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+    .action-buttons { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
     .stats-grid { grid-template-columns: 1fr; }
-    .page-content { padding: 12px; }
+    .page-content { padding: 10px 4px; }
     .main-header { padding: 10px; }
-    .modal-content { padding: 12px; }
+    .modal-content { padding: 10px; }
     .modal-content.large { max-width: 98vw; }
     .section-header { flex-direction: column; align-items: stretch; gap: 10px; }
     .section-header .filters { flex-direction: column; gap: 10px; }
+    .btn, .btn.btn-sm { min-height: 44px; min-width: 44px; font-size: 1rem; }
 }
 
 @media (max-width: 576px) {
@@ -328,13 +351,15 @@ table small { color: var(--text-muted); font-size: 0.8rem; }
     .user-info { gap: 7px; font-size: 0.95rem; }
     .header-title { font-size: 1.1rem; }
     #alertNotification { left: 5px; right: 5px; bottom: 10px; width: auto; padding: 10px 8px; font-size: 0.95rem; }
+    .btn, .btn.btn-sm { min-height: 40px; min-width: 40px; font-size: 0.98rem; }
 }
 
 /* تحسين ظهور الجداول في الجوال */
 @media (max-width: 480px) {
-    .responsive-table table { min-width: 400px; }
-    .stat-card { flex-direction: column; gap: 10px; padding: 12px; }
-    .stat-card i { font-size: 1.5rem; padding: 10px; }
-    .stat-value { font-size: 1.3rem; }
-    .chart-wrapper { height: 220px; }
+    .responsive-table table { min-width: 320px; }
+    .stat-card { flex-direction: column; gap: 10px; padding: 10px; }
+    .stat-card i { font-size: 1.2rem; padding: 8px; }
+    .stat-value { font-size: 1.1rem; }
+    .chart-wrapper { height: 160px; }
+    .btn, .btn.btn-sm { min-height: 36px; min-width: 36px; font-size: 0.95rem; }
 }

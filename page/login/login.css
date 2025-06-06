@@ -160,3 +160,56 @@ input[type="password"]:focus {
 .login-footer a:hover {
     text-decoration: underline;
 }
+
+/* --- Responsive Styles --- */
+@media (max-width: 600px) {
+    .login-container {
+        padding: 20px 10px;
+        max-width: 100%;
+        min-width: 0;
+        box-shadow: none;
+        border-radius: 0;
+    }
+    .login-header .logo {
+        font-size: 1.3rem;
+    }
+    .login-header h2 {
+        font-size: 1.1rem;
+    }
+    .login-header p {
+        font-size: 0.95rem;
+    }
+    .btn-login {
+        font-size: 1rem;
+        padding: 12px;
+    }
+    .form-group label {
+        font-size: 0.95rem;
+    }
+    input[type="email"],
+    input[type="password"] {
+        font-size: 0.95rem;
+        padding: 12px 38px 12px 10px;
+    }
+    .input-wrapper i {
+        right: 10px;
+        font-size: 1rem;
+    }
+    .login-footer {
+        font-size: 0.85rem;
+        margin-top: 18px;
+    }
+}
+
+@media (max-width: 400px) {
+    .login-container {
+        padding: 10px 2vw;
+    }
+    .login-header .logo {
+        font-size: 1.1rem;
+    }
+    .btn-login {
+        font-size: 0.95rem;
+        padding: 10px;
+    }
+}

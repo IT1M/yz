@@ -190,6 +190,12 @@ function toggleMobileNav(forceState) {
     if (DOMElements.mobileNavToggle) {
         DOMElements.mobileNavToggle.querySelector('i').className = isOpen ? 'fas fa-times' : 'fas fa-bars';
     }
+    // Lock body scroll when mobile nav is open
+    if (isOpen) {
+        document.body.classList.add('mobile-nav-open');
+    } else {
+        document.body.classList.remove('mobile-nav-open');
+    }
 }
 
 function handleOutsideClicks(event) {
